@@ -1,0 +1,171 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	min-height: 99%;
+	font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+	font-size: 17px;
+	line-height: 1.4;
+	background: #2C5093 url("images/bg.png");
+}
+
+#frame {
+	margin: 0 auto;
+	width: 90%;
+	max-width: 966px;
+	min-width: 746px;
+	height: 100%;
+	background: 	url("images/pillar-nouveau-top-right.png") top right no-repeat,
+						url("images/pillar-nouveau-top-left.png") top left no-repeat,
+						url("images/pillar-nouveau-bottom-right.png") bottom right no-repeat,
+						url("images/pillar-nouveau-bottom-left.png") bottom left no-repeat,
+						url("images/pillar-nouveau-side-right.png") top right repeat-y,
+						url("images/pillar-nouveau-side-left.png") top left repeat-y,
+						url("images/swirl-marble-blue.jpg") top left;
+	border-top: 4px solid #070E19;
+	border-bottom: 4px solid #070E19;
+	padding: 0 17px;
+}
+
+header {
+	padding: 24px 15px;
+}
+
+header nav ul, #utility-nav {
+	list-style: none;
+	margin: 21px 0 0 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+header nav li {
+	float: left;
+	margin-right: 16px;
+	padding-top: 3px;
+	padding-left: 18px;
+}
+
+header nav li.first {
+	float: right;
+	margin: 0;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+header nav li.last{
+	margin-right: 0;
+}
+
+#utility-nav { float: right; font-size: 15px; margin-top: 19px; }
+
+#utility-nav li {
+	display: inline;
+	border-left: 1px solid #999;
+	padding-left: 5px;
+}
+
+#utility-nav li.first { border-left: 0; }
+
+a { text-decoration: none; }
+a:link, a:visited { color: #2C5093; }
+a:hover, a:active { color: #FF752B; }
+
+header nav a { font-size: 20px; }
+
+a img { border: 0; }
+
+
+img.cart, img.edit { padding-left: 5px; }
+
+header .last {
+	text-align: right;
+}
+
+.visually-hidden {
+	position: absolute;
+	left: -999em;
+}
+
+.no-show, #archoninfo { display: none; }
+
+section, footer {
+	padding: 0 15px 24px 15px;
+	border-top: 1px solid #999999;
+}
+
+section {
+	background: #FFF url("images/laurel-large.jpg") bottom center no-repeat;
+	min-height: 540px;
+}
+
+
+#breadcrumbs { margin-top: 16px; }
+
+footer {
+	padding: 24px 15px;
+}
+
+h2 {
+	font-size: 24px;
+	color: #2C5093;
+	margin-top: 19px;
+}
+
+blockquote {
+	font-style: italic;
+	white-space: pre;
+}
+
+nav .active {
+	background: url("images/leaf.png") top left no-repeat;
+}
+
+.ccardcontent { margin-top: 1em; }
+
+.results-list ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.results-list li {
+	float: left;
+	text-align: center;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	font-size: 50px;
+	border: 1px solid #999;
+	width: 50px;
+}
+
+.results-list li a {
+	display: block;
+}
+
+.results-list .view-all { width: auto; padding: 0 10px; }
+
+#dlsearchblock { float: left; clear: left; margin-top: 2em; border: 1px solid #999; padding: 1em; font-size: 22px; }
+
+#subjects-filter { clear: left; margin-top: 2em; }
+
+nav.local {
+	float: left;
+	width: 212px;
+	padding: 8px;
+	border: 1px solid #999;
+	background: url("images/swirl-marble-blue.jpg") top left;
+	border-radius: 8px;
+	margin-top: 19px;
+}
+
+nav.local h3 {
+	color: #2C5093;
+	margin-top: 0;
+}
+
+nav.local ul {
+	list-style: none;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+#right { margin-left: 248px; }

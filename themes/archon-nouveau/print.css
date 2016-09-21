@@ -1,0 +1,10 @@
+header nav, footer, #breadcrumbs, .visually-hidden, .no-show, #utility-nav, #archoninfo, #ccardprintcontact, img.edit, img.cart, nav.local { display: none; }
+
+#ccardscope, .ccardcontent { margin-top:1em; }
+
+header img {
+	height: 35px;
+	width: auto;
+}
+
+body { background: #FFF url("non-existent.png") !important; }

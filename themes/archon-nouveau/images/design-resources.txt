@@ -1,0 +1,32 @@
+The font used in the Archon logo is "Stowe Open Face".  The font itself cannot be distributed,
+but images made from it can.  See:
+
+ - archon-logo.svg 
+ - archon-logo-capitol-only.svg 
+ - archon-logo-capitol-only-favicon.svg 
+ - archon-logo-capitol-only-favicon.pdn
+
+The SVG files can be edited with Inkscape, and the pdn file with Paint.net:
+
+ - http://inkscape.org/
+ - http://getpaint.net/
+
+The laurel wreath used in the Archon logo and in the background of the content-area is public
+domain clipart from the Open Clip Art library:
+
+http://openclipart.org/detail/2241/laurel-wreath-by-zeimusu
+
+It was based on this laurel wreath:
+
+http://commons.wikimedia.org/wiki/File:SPQRomani_stable.svg
+
+Which was formally donated to the public domain by its author, Piotr Michal Jawosrki. See
+also the file zeimusu_Laurel_wreath.svg.
+
+The swirl-marble.jpg background is a royalty free image courtesy of Spiral Graphics:
+
+http://www.spiralgraphics.biz/packs/marble/index.htm?21
+
+Check out their Genetica program for making textures, it's pretty cool.
+
+The pillar nouveau image I created from nothing.  The original is in pillar-nouveau.svg.
