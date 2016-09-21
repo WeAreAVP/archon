@@ -32,3 +32,5 @@ config.inc.php
 ehthumbs.db
 Icon?
 Thumbs.db
+nbproject
+/nbproject/private/
