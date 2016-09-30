@@ -37,7 +37,7 @@ if ($_REQUEST['f'] == 'import-' . $UtilityCode) {
 
     ob_implicit_flush();
 
-    $arrFiles = $_ARCHON->getAllIncomingFiles();
+    $arrFiles = $_ARCHON->getAllIncomingFiles(false);
 
     if (!empty($arrFiles)) {
         $arrLocations = $_ARCHON->getAllLocations();
@@ -68,80 +68,97 @@ if ($_REQUEST['f'] == 'import-' . $UtilityCode) {
         }
 
         foreach ($arrFiles as $Filename => $strCSV) {
-            echo("Parsing file $Filename...<br><br>\n\n");
+            echo("Parsing file $Filename...$strCSV<br><br>\n\n");
 
             // Remove byte order mark if it exists.
             $strCSV = ltrim($strCSV, "\xEF\xBB\xBF");
 
             $arrAllData = readExcel($strCSV);
+
             // ignore first line?
-            foreach ($arrAllData as $values) {
-                foreach ($values as $key=> $arrData) {
-                    if (!empty($arrData)) {
-                        $objAccession = new Accession();
-                        $date = getDate($arrData[$key][0]['date']);
+            foreach ($arrAllData as $key => $arrData) {
+                if (!empty($key) && !empty($arrData)) {
+                    $objAccession = new Accession();
+                    $objAccession->Enabled = 0;
+                    if (!empty($arrData[0]['date'])) {
+                        $date = getFormattedDate($arrData[0]['date']);
                         $objAccession->AccessionDateMonth = $date[0];
                         $objAccession->AccessionDateDay = $date[1];
                         $objAccession->AccessionDateYear = $date[2];
-                        $log_no = str_pad($arrData[$key][0]['log'], 4, '0', STR_PAD_LEFT);
-                        $objAccession->Identifier = $log_no;
-                        $objAccession->Title = $arrData[$key][0]['source'] . ' | ' . $log_no;
-                        $objAccession->ReceivedExtent = count($arrData);
-                        $ReceivedExtentUnit = 'Boxes (General)';
-                        $objAccession->ReceivedExtentUnitID = $arrExtentUnitsMap[encoding_strtolower($ReceivedExtentUnit)] ? $arrExtentUnitsMap[encoding_strtolower($ReceivedExtentUnit)] : 0;
-                        if (!$objAccession->ReceivedExtentUnitID && $ReceivedExtentUnit) {
-                            echo("Extent Unit $ReceivedExtentUnit not found!<br>\n");
+                    }
+                    $log_no = str_pad($arrData[0]['log'], 4, '0', STR_PAD_LEFT);
+                    $objAccession->Identifier = $log_no;
+                    if (!empty($arrData[0]['source'])) {
+                        $objAccession->Title = $arrData[0]['source'] . ' | ' . $log_no . " | [" . $arrData[0]['archives'] .']';
+                    } else {
+                        $objAccession->Title = '| ' . $log_no . " | [" . $arrData[0]['archives'] ."]";
+                    }
+                    $objAccession->ReceivedExtent = count($arrData);
+                    $ReceivedExtentUnit = 'Boxes (General)';
+                    $objAccession->ReceivedExtentUnitID = $arrExtentUnitsMap[encoding_strtolower($ReceivedExtentUnit)] ? $arrExtentUnitsMap[encoding_strtolower($ReceivedExtentUnit)] : 0;
+                    if (!$objAccession->ReceivedExtentUnitID && $ReceivedExtentUnit) {
+                        echo("Extent Unit $ReceivedExtentUnit not found!<br>\n");
+                    }
+
+                    if (!in_array(strtolower($arrData[0]['range']), array("p", "d", "c"))) {
+                        $objAccession->UnprocessedExtent = count($arrData);
+                        $UnprocessedExtentUnit = 'Boxes (General)';
+                        $objAccession->UnprocessedExtentUnitID = $arrExtentUnitsMap[encoding_strtolower($UnprocessedExtentUnit)] ? $arrExtentUnitsMap[encoding_strtolower($UnprocessedExtentUnit)] : 0;
+                        if (!$objAccession->UnprocessedExtentUnitID && $UnprocessedExtentUnit) {
+                            echo("Extent Unit $UnprocessedExtentUnit not found!<br>\n");
                         }
+                    }
+                    // donor ???
+//                    $objAccession->Donor = $arrData[0]['source'];
 
-                        // donor ???
-                        $objAccession->Donor = $arrData[$key][0]['source'];
+                    $description = generateDescription($arrData);
+                    $objAccession->PhysicalDescription = $description;
 
-                        $description = generateDescription($arrData);
-
-                        $objAccession->PhysicalDescription = $description;
-
-                        $objAccession->dbStore();
-                        if (!$objAccession->ID) {
-                            echo("Error storing accession $objAccession->Title: {$_ARCHON->clearError()}<br>\n");
-                            continue;
-                        }
-
-                        if ($objAccession->ID) {
-                            foreach ($arrData as $_value) {
-                                $LocationContent = $_value['box_no'];
-                                $objLocationEntry = NULL;
-                                if ($LocationContent) {
-                                    $objLocationEntry = New AccessionLocationEntry();
-                                    $Location = "Archives Stacks";
-                                    $objLocationEntry->LocationID = $arrLocationsMap[encoding_strtolower($Location)] ? $arrLocationsMap[encoding_strtolower($Location)] : 0;
-                                    if ($objLocationEntry->LocationID != 0) {
-                                        $objLocationEntry->AccessionID = $objAccession->ID;
-                                        $objLocationEntry->Content = $LocationContent;
-                                        $objLocationEntry->RangeValue = $_value['range'];
+                    $objAccession->dbStore();
+                    if (!$objAccession->ID) {
+                        echo("Error storing accession $objAccession->Title: {$_ARCHON->clearError()}<br>\n");
+                        continue;
+                    }
+                    if ($objAccession->ID) {
+                        foreach ($arrData as $_value) {
+                            $LocationContent = $_value['box_no'];
+                            $objLocationEntry = NULL;
+                            if ($LocationContent) {
+                                $objLocationEntry = New AccessionLocationEntry();
+                                $Location = "Archives Stacks";
+                                $objLocationEntry->LocationID = $arrLocationsMap[encoding_strtolower($Location)] ? $arrLocationsMap[encoding_strtolower($Location)] : 0;
+                                if ($objLocationEntry->LocationID != 0) {
+                                    $objLocationEntry->AccessionID = $objAccession->ID;
+                                    $objLocationEntry->Content = $LocationContent;
+                                    $objLocationEntry->RangeValue = $_value['range'];
+                                    $objLocationEntry->Shelf = $_value['shelf'];
+                                    if (!empty($_value['section']))
                                         $objLocationEntry->Section = $_value['section'];
-                                        $objLocationEntry->Extent = 1;
-                                        $LocationEntryExtentUnit = 'Boxes (General)';
-                                        $objLocationEntry->ExtentUnitID = $arrExtentUnitsMap[encoding_strtolower($LocationEntryExtentUnit)] ? $arrExtentUnitsMap[encoding_strtolower($LocationEntryExtentUnit)] : 0;
-                                        if (!$objLocationEntry->ExtentUnitID && $LocationEntryExtentUnit) {
-                                            echo("Extent Unit $LocationEntryExtentUnit not found!<br>\n");
-                                        }
-                                        if (!$objLocationEntry->dbStore()) {
-                                            echo("Error relating LocationEntry to accession: {$_ARCHON->clearError()}<br>\n");
-                                        }
-                                    } else {
-                                        echo("Location $Location not found!<br>\n");
+                                    $objLocationEntry->Extent = 1;
+                                    $LocationEntryExtentUnit = 'Boxes (General)';
+                                    $objLocationEntry->ExtentUnitID = $arrExtentUnitsMap[encoding_strtolower($LocationEntryExtentUnit)] ? $arrExtentUnitsMap[encoding_strtolower($LocationEntryExtentUnit)] : 0;
+                                    if (!$objLocationEntry->ExtentUnitID && $LocationEntryExtentUnit) {
+                                        echo("Extent Unit $LocationEntryExtentUnit not found!<br>\n");
                                     }
+                                    if (!$objLocationEntry->dbStore()) {
+                                        echo("Error relating LocationEntry to accession: {$_ARCHON->clearError()}<br>\n");
+                                    }
+                                } else {
+                                    echo("Location $Location not found!<br>\n");
                                 }
                             }
                         }
-
-                        if ($objAccession->ID) {
-                            echo("Imported {$objAccession->Title}.<br><br>\n\n");
-                        }
-
-                        flush();
                     }
+
+                    if ($objAccession->ID) {
+                        echo("Imported {$objAccession->Title}.<br><br>\n\n");
+                    }
+
+                    flush();
+                } else {
+                    echo 'outside';
                 }
+//                }
             }
         }
 
@@ -152,14 +169,18 @@ if ($_REQUEST['f'] == 'import-' . $UtilityCode) {
 function generateDescription($data) {
     $description = '';
     foreach ($data as $value) {
-        $description .= 'Box ' . $value['box_no'] . ', ' . $value['description'] . ' (Range ' . $value['range'] . ', Section ' . $value['section'] . '; <br>';
+        if (!empty($value['section'])) {
+            $description .= 'Box ' . $value['box_no'] . ', ' . $value['description'] . ' (Range ' . $value['range'] . ', Section ' . $value['section'] . ');' . PHP_EOL;
+        } else {
+            $description .= 'Box ' . $value['box_no'] . ', ' . $value['description'] . ' (Range ' . $value['range'] . ');' . PHP_EOL;
+        }
     }
     return $description;
 }
 
-function getDate($data) {
-    $d = '';
-    $date = str_replace('-', '/', $data);
+function getFormattedDate($data) {
+    $d = $m = $y = '';
+    $date = split('/', str_replace('-', '/', $data));
     if (count($date) == 3) {
         $month = \DateTime::createFromFormat('m', $date[0]);
         $m = $month->format('m');
@@ -171,7 +192,7 @@ function getDate($data) {
         } else {
             $y = $date[2];
         }
-    } else {
+    } else if (count($date) > 0) {
         $month = \DateTime::createFromFormat('m', $date[0]);
         $m = $month->format('m');
         if ($date[1] <= 99) {
