@@ -910,8 +910,8 @@ function readExcel($inputFileName) {
                 $log = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
                 $data['range'] = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
                 $data['section'] = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
-                $data['source'] = $worksheet->getCellByColumnAndRow(7, $row)->getValue();
-                $data['shelf'] = $worksheet->getCellByColumnAndRow(8, $row)->getValue(); 
+                $data['shelf'] = $worksheet->getCellByColumnAndRow(7, $row)->getValue();
+                $data['source'] = $worksheet->getCellByColumnAndRow(8, $row)->getValue();                 
                 $data['log'] = $log;
                 $_data[$log][] = $data;
                 unset($data);

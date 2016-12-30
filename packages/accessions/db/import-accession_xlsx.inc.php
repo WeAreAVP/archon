@@ -89,9 +89,9 @@ if ($_REQUEST['f'] == 'import-' . $UtilityCode) {
                     $log_no = str_pad($arrData[0]['log'], 4, '0', STR_PAD_LEFT);
                     $objAccession->Identifier = $log_no;
                     if (!empty($arrData[0]['source'])) {
-                        $objAccession->Title = $arrData[0]['source'] . ' | ' . $log_no . " | [" . $arrData[0]['archives'] .']';
+                        $objAccession->Title = $arrData[0]['source'] . ' | ' . $log_no . " | [" . $arrData[0]['archives'] . ']';
                     } else {
-                        $objAccession->Title = '| ' . $log_no . " | [" . $arrData[0]['archives'] ."]";
+                        $objAccession->Title = '| ' . $log_no . " | [" . $arrData[0]['archives'] . "]";
                     }
                     $objAccession->ReceivedExtent = count($arrData);
                     $ReceivedExtentUnit = 'Boxes (General)';
@@ -155,8 +155,6 @@ if ($_REQUEST['f'] == 'import-' . $UtilityCode) {
                     }
 
                     flush();
-                } else {
-                    echo 'outside';
                 }
 //                }
             }
@@ -169,8 +167,12 @@ if ($_REQUEST['f'] == 'import-' . $UtilityCode) {
 function generateDescription($data) {
     $description = '';
     foreach ($data as $value) {
-        if (!empty($value['section'])) {
+        if (!empty($value['section']) && !empty($value['shelf'])) {
+            $description .= 'Box ' . $value['box_no'] . ', ' . $value['description'] . ' (Range ' . $value['range'] . ', Section ' . $value['section'] . ', Shelf ' . $value['shelf'] . ');' . PHP_EOL;
+        } else if (!empty($value['section'])) {
             $description .= 'Box ' . $value['box_no'] . ', ' . $value['description'] . ' (Range ' . $value['range'] . ', Section ' . $value['section'] . ');' . PHP_EOL;
+        }else if (!empty($value['shelf'])) {
+            $description .= 'Box ' . $value['box_no'] . ', ' . $value['description'] . ' (Range ' . $value['range'] . ', Shelf ' . $value['shelf'] . ');' . PHP_EOL;
         } else {
             $description .= 'Box ' . $value['box_no'] . ', ' . $value['description'] . ' (Range ' . $value['range'] . ');' . PHP_EOL;
         }

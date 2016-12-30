@@ -992,9 +992,9 @@ abstract class Collections_Archon
 
       if(is_natural($CollectionIdentifier))
       {
-         $minLengthQuery = " OR CollectionIdentifier = ?";
+         $minLengthQuery = " OR CollectionIdentifier LIKE ?";
          $minLengthTypes = array('text');
-         $minLengthVars = array(str_pad($CollectionIdentifier, CONFIG_COLLECTIONS_COLLECTION_IDENTIFIER_MINIMUM_LENGTH, "0", STR_PAD_LEFT));
+         $minLengthVars = array(str_pad("%$CollectionIdentifier%", CONFIG_COLLECTIONS_COLLECTION_IDENTIFIER_MINIMUM_LENGTH, "0", STR_PAD_LEFT));
       }
       else
       {
@@ -1003,9 +1003,9 @@ abstract class Collections_Archon
          $minLengthVars = array();
       }
 
-      $query = "SELECT ID FROM tblCollections_Collections WHERE ClassificationID = ? AND (CollectionIdentifier = ?$minLengthQuery);";
+      $query = "SELECT ID FROM tblCollections_Collections WHERE ClassificationID = ? AND (CollectionIdentifier LIKE ?$minLengthQuery);";
       $types = array_merge(array('integer', 'text'), $minLengthTypes);
-      $vars = array_merge(array($ClassificationID, $CollectionIdentifier), $minLengthVars);
+      $vars = array_merge(array($ClassificationID, "%$CollectionIdentifier%"), $minLengthVars);
 
       if(!isset($preps[$query]))
       {

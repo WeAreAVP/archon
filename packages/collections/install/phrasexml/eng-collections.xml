@@ -331,6 +331,9 @@
 				<phrase name='import_collectioncontent_csv' regularexpression=''>
 					The Collection Content CSV import script takes content information from a csv (comma-separated values) file and imports it into Archon. Please see the Archon documentation for details.
 				</phrase>
+                                <phrase name='import_collectioncontentwithlevels_csv' regularexpression=''>
+					The Collection Content With levels CSV import script takes content information from a csv (comma-separated values) file and imports it into Archon. Please see the Archon documentation for details.
+				</phrase>
 				<phrase name='import_ead' regularexpression=''>
 					The EAD XML import script takes finding aids in EAD format and imports them to Archon.
 				</phrase>
@@ -436,6 +439,10 @@
 				<phrase name='import_collectioncontent_csv' regularexpression=''>
 					Collection Content CSV
 				</phrase>
+                                <phrase name='import_collectioncontentwithlevels_csv' regularexpression=''>
+					Collection Content With Levels CSV
+				</phrase>
+                                
 				<phrase name='import_ead' regularexpression=''>
 					EAD XML
 				</phrase>

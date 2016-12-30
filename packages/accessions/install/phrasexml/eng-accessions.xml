@@ -44,10 +44,16 @@
 				<phrase name='import_accession_csv' regularexpression=''>
 					The Accession CSV import script takes accession information from a csv (comma-separated values) file and imports it into Archon. Please see the Archon documentation for details.
 				</phrase>
+                                <phrase name='import_accession_xlsx' regularexpression=''>
+					The Accession CSV import script takes accession information from a csv (comma-separated values) file and imports it into Archon. Please see the Archon documentation for details.
+				</phrase>
 			</phrasetype>
 			<phrasetype name='Administrative Phrase'>
 				<phrase name='import_accession_csv' regularexpression=''>
 					Accession CSV
+				</phrase>
+                                <phrase name='import_accession_xlsx' regularexpression=''>
+					Accession XLSX
 				</phrase>
 				<phrase name='locationentries_location' regularexpression=''>
 					Location
