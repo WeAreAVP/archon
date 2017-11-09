@@ -1,6 +1,7 @@
 <?php
 
-abstract class Collections_Archon {
+abstract class Collections_Archon
+{
 
     /**
      * Returns the number of Collections in the database
@@ -15,33 +16,43 @@ abstract class Collections_Archon {
      * @param integer $RepositoryID[optional]
      * @return integer|Array
      */
-    public function countCollections($Alphabetical = false, $ExcludeDisabledCollections = false, $RepositoryID = 0) {
-        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ)) {
+    public function countCollections($Alphabetical = false, $ExcludeDisabledCollections = false, $RepositoryID = 0)
+    {
+        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ))
+        {
             $ExcludeDisabledCollections = true;
         }
 
-        if ($ExcludeDisabledCollections) {
+        if ($ExcludeDisabledCollections)
+        {
             $Conditions = "Enabled = '1'";
         }
 
-        if ($RepositoryID && !is_array($RepositoryID) && is_natural($RepositoryID)) {
+        if ($RepositoryID && !is_array($RepositoryID) && is_natural($RepositoryID))
+        {
             $Conditions .= $Conditions ? " AND RepositoryID = ?" : "RepositoryID = ?";
             $ConditionsTypes = array('integer');
             $ConditionsVars = array($RepositoryID);
-        } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+        }
+        elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+        {
             $Conditions .= $Conditions ? " AND RepositoryID IN (" : "RepositoryID IN (";
             $Conditions .= implode(', ', array_fill(0, count($RepositoryID), '?'));
             $Conditions .= ")";
 
             $ConditionsTypes = array_fill(0, count($RepositoryID), 'integer');
             $ConditionsVars = $RepositoryID;
-        } else {
+        }
+        else
+        {
             $ConditionsTypes = array();
             $ConditionsVars = array();
         }
 
-        if ($Alphabetical) {
-            if ($Conditions) {
+        if ($Alphabetical)
+        {
+            if ($Conditions)
+            {
                 $Conditions = 'AND ' . $Conditions;
             }
 
@@ -50,7 +61,8 @@ abstract class Collections_Archon {
 
             $prep = $this->mdb2->prepare("SELECT ID FROM tblCollections_Collections WHERE (SortTitle LIKE '0%' OR SortTitle LIKE '1%' OR SortTitle LIKE '2%' OR SortTitle LIKE '3%' OR SortTitle LIKE '4%' OR SortTitle LIKE '5%' OR SortTitle LIKE '6%' OR SortTitle LIKE '7%' OR SortTitle LIKE '8%' OR SortTitle LIKE '9%') $Conditions", $ConditionTypes, MDB2_PREPARE_RESULT);
             $result = $prep->execute($ConditionsVars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
@@ -61,11 +73,13 @@ abstract class Collections_Archon {
             $prep->free();
 
             $prep = $this->mdb2->prepare("SELECT ID FROM tblCollections_Collections WHERE SortTitle LIKE ? $Conditions", array_merge(array('text'), $ConditionsTypes), MDB2_PREPARE_RESULT);
-            for ($i = 65; $i < 91; $i++) {
+            for ($i = 65; $i < 91; $i++)
+            {
                 $char = chr($i);
 
                 $result = $prep->execute(array_merge(array("$char%"), $ConditionsVars));
-                if (PEAR::isError($result)) {
+                if (PEAR::isError($result))
+                {
                     trigger_error($result->getMessage(), E_USER_ERROR);
                 }
 
@@ -80,14 +94,18 @@ abstract class Collections_Archon {
             $arrIndex['*'] = $sum;
 
             return $arrIndex;
-        } else {
-            if ($Conditions) {
+        }
+        else
+        {
+            if ($Conditions)
+            {
                 $Conditions = 'WHERE ' . $Conditions;
             }
 
             $prep = $this->mdb2->prepare("SELECT ID FROM tblCollections_Collections $Conditions", $ConditionsTypes, MDB2_PREPARE_RESULT);
             $result = $prep->execute($ConditionsVars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
@@ -110,16 +128,19 @@ abstract class Collections_Archon {
      * @param boolean $Alphabetical[optional]
      * @return integer|Array
      */
-    public function countBooks($Alphabetical = false) {
+    public function countBooks($Alphabetical = false)
+    {
 
-        if ($Alphabetical) {
+        if ($Alphabetical)
+        {
 
             $arrIndex = array();
             $sum = 0;
 
             $query = "SELECT ID FROM tblCollections_Books WHERE (Title LIKE '0%' OR Title LIKE '1%' OR Title LIKE '2%' OR Title LIKE '3%' OR Title LIKE '4%' OR Title LIKE '5%' OR Title LIKE '6%' OR Title LIKE '7%' OR Title LIKE '8%' OR Title LIKE '9%')";
             $result = $this->mdb2->query($query);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
@@ -130,12 +151,14 @@ abstract class Collections_Archon {
             //$prep->free();
 
             $prep = $this->mdb2->prepare('SELECT ID FROM tblCollections_Books WHERE Title LIKE ?', 'text', MDB2_PREPARE_RESULT);
-            for ($i = 65; $i < 91; $i++) {
+            for ($i = 65; $i < 91; $i++)
+            {
                 $char = chr($i);
 
                 //  $query = "SELECT ID FROM tblCollections_Books WHERE Title LIKE '$char%'";
                 $result = $prep->execute("$char%");
-                if (PEAR::isError($result)) {
+                if (PEAR::isError($result))
+                {
                     trigger_error($result->getMessage(), E_USER_ERROR);
                 }
 
@@ -149,11 +172,14 @@ abstract class Collections_Archon {
             $arrIndex['*'] = $sum;
 
             return $arrIndex;
-        } else {
+        }
+        else
+        {
 
             $query = "SELECT ID FROM tblCollections_Books";
             $result = $this->mdb2->query($query);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
@@ -164,33 +190,44 @@ abstract class Collections_Archon {
         }
     }
 
-    public function createEmailDetailsForCart() {
+    public function createEmailDetailsForCart()
+    {
 
         $cart = $this->Security->Session->ResearchCart->getCart();
 
-        if ($cart && $cart->Collections) {
+        if ($cart && $cart->Collections)
+        {
 
-            foreach ($cart->Collections as $CollectionID => $arrObjs) {
-                foreach ($arrObjs->Content as $ContentID => $obj) {
-                    if ($obj instanceof Collection) {
+            foreach ($cart->Collections as $CollectionID => $arrObjs)
+            {
+                foreach ($arrObjs->Content as $ContentID => $obj)
+                {
+                    if ($obj instanceof Collection)
+                    {
                         $objCollection = $obj;
                         unset($objContent);
-                    } else {
+                    }
+                    else
+                    {
                         $objCollection = $obj->Collection;
                         $objContent = $obj;
                     }
 
-                    if (CONFIG_COLLECTIONS_SEARCH_BY_CLASSIFICATION && $objCollection->ClassificationID && $objCollection->ClassificationID != $PrevClassificationID) {
+                    if (CONFIG_COLLECTIONS_SEARCH_BY_CLASSIFICATION && $objCollection->ClassificationID && $objCollection->ClassificationID != $PrevClassificationID)
+                    {
                         $details .= "{$objCollection->Classification->toString(LINK_NONE, true, false, true, false)}/$objCollection->CollectionIdentifier ";
                         $details .= $objCollection->Classification->toString(LINK_NONE, false, true, false, true, '/') . " -- ";
-                    } else {
+                    }
+                    else
+                    {
                         $details .= "$objCollection->CollectionIdentifier ";
                     }
 
                     $details .= $objCollection->toString(LINK_NONE) . ". ";
 
 
-                    if ($objContent) {
+                    if ($objContent)
+                    {
                         $details .= $objContent->toString(LINK_NONE, true, true, true, true, ', ');
                     }
 
@@ -211,18 +248,22 @@ abstract class Collections_Archon {
      * @param string $SubDelimiter[optional]
      * @return string
      */
-    public function createStringFromLocationEntryArray($arrLocationEntries, $Delimiter = ', ', $MakeIntoLink = LINK_NONE, $ConcatinateFieldNames = true, $SubDelimiter = ", ") {
-        if (empty($arrLocationEntries)) {
+    public function createStringFromLocationEntryArray($arrLocationEntries, $Delimiter = ', ', $MakeIntoLink = LINK_NONE, $ConcatinateFieldNames = true, $SubDelimiter = ", ")
+    {
+        if (empty($arrLocationEntries))
+        {
             $this->declareError("Could not create LocationEntry String: No IDs specified.");
             return false;
         }
 
         $objLast = end($arrLocationEntries);
 
-        foreach ($arrLocationEntries as $objLocationEntry) {
+        foreach ($arrLocationEntries as $objLocationEntry)
+        {
             $string .= $objLocationEntry->toString($MakeIntoLink, $ConcatinateFieldNames, $SubDelimiter, true);
 
-            if ($objLocationEntry->ID != $objLast->ID) {
+            if ($objLocationEntry->ID != $objLast->ID)
+            {
                 $string .= $Delimiter;
             }
         }
@@ -230,18 +271,22 @@ abstract class Collections_Archon {
         return $string;
     }
 
-    public function createStringFromBookArray($arrBooks, $Delimiter = ', ', $MakeIntoLink = LINK_NONE) {
-        if (empty($arrBooks)) {
+    public function createStringFromBookArray($arrBooks, $Delimiter = ', ', $MakeIntoLink = LINK_NONE)
+    {
+        if (empty($arrBooks))
+        {
             $this->declareError("Could not create Book String: No IDs specified.");
             return false;
         }
 
         $objLast = end($arrBooks);
 
-        foreach ($arrBooks as $objBook) {
+        foreach ($arrBooks as $objBook)
+        {
             $string .= $objBook->toString($MakeIntoLink);
 
-            if ($objBook->ID != $objLast->ID) {
+            if ($objBook->ID != $objLast->ID)
+            {
                 $string .= $Delimiter;
             }
         }
@@ -258,18 +303,22 @@ abstract class Collections_Archon {
      * @param string $ConcatinateTitles[optional]
      * @return string
      */
-    public function createStringFromUserFieldArray($arrUserFields, $Delimiter = ', ', $MakeIntoLink = LINK_NONE, $ConcatinateTitles = true) {
-        if (empty($arrUserFields)) {
+    public function createStringFromUserFieldArray($arrUserFields, $Delimiter = ', ', $MakeIntoLink = LINK_NONE, $ConcatinateTitles = true)
+    {
+        if (empty($arrUserFields))
+        {
             $this->declareError("Could not create Userfield String: No IDs specified.");
             return false;
         }
 
         $objLast = end($arrUserFields);
 
-        foreach ($arrUserFields as $objUserField) {
+        foreach ($arrUserFields as $objUserField)
+        {
             $string .= $objUserField->toString($MakeIntoLink, $ConcatinateTitles);
 
-            if ($objUserField->ID != $objLast->ID) {
+            if ($objUserField->ID != $objLast->ID)
+            {
                 $string .= $Delimiter;
             }
         }
@@ -287,12 +336,16 @@ abstract class Collections_Archon {
      *
      * @return Classification[]
      */
-    public function getAllClassifications() {
+    public function getAllClassifications()
+    {
         $arrClassifications = $this->loadTable("tblCollections_Classifications", "Classification", "ParentID, ClassificationIdentifier");
 
-        if (!empty($arrClassifications)) {
-            foreach ($arrClassifications as &$objClassification) {
-                if ($objClassification->ParentID) {
+        if (!empty($arrClassifications))
+        {
+            foreach ($arrClassifications as &$objClassification)
+            {
+                if ($objClassification->ParentID)
+                {
                     $arrClassifications[$objClassification->ParentID]->Classifications[$objClassification->ID] = $objClassification;
                     $objClassification->Parent = $arrClassifications[$objClassification->ParentID];
                 }
@@ -305,7 +358,8 @@ abstract class Collections_Archon {
         return $arrClassifications;
     }
 
-    public function getCollectionList($Conditions = NULL) {
+    public function getCollectionList($Conditions = NULL)
+    {
         return $this->loadObjectList("tblCollections_Collections", "Collection", "Title", "SortTitle");
     }
 
@@ -320,20 +374,24 @@ abstract class Collections_Archon {
      *
      * @param integer $offset[optional]
      */
-    public function get100Collections($offset = 0) {
+    public function get100Collections($offset = 0)
+    {
         global $_ARCHON;
         $arrCollections = array();
         $query = "SELECT * from tblCollections_Collections ORDER BY ID";
         $_ARCHON->mdb2->setLimit(100, $offset);
         $result = $_ARCHON->mdb2->query($query);
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
-        if (!$result->numRows()) {          // If there is no content found
+        if (!$result->numRows())
+        {          // If there is no content found
             $result->free();
             return false;
         }
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $arrCollections[$row['ID']] = New Collection($row);
         }
         $result->free();
@@ -357,21 +415,27 @@ abstract class Collections_Archon {
      * @param integer $RepositoryID[optional]
      * @return Collection[]
      */
-    public function getAllCollections($MakeIntoIndex = false, $ExcludeDisabledCollections = false, $RepositoryID = 0) {
-        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ)) {
+    public function getAllCollections($MakeIntoIndex = false, $ExcludeDisabledCollections = false, $RepositoryID = 0)
+    {
+        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ))
+        {
             $ExcludeDisabledCollections = true;
         }
 
-        if ($ExcludeDisabledCollections) {
+        if ($ExcludeDisabledCollections)
+        {
             $Conditions = "Enabled = '1'";
         }
 
         $ConditionsTypes = array();
         $ConditionsVars = array();
 
-        if ($RepositoryID && !is_array($RepositoryID) && is_natural($RepositoryID)) {
+        if ($RepositoryID && !is_array($RepositoryID) && is_natural($RepositoryID))
+        {
             $Conditions .= $Conditions ? " AND RepositoryID = '$RepositoryID'" : "RepositoryID = '$RepositoryID'";
-        } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+        }
+        elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+        {
             $Conditions .= $Conditions ? " AND RepositoryID IN (" : "RepositoryID IN (";
             $Conditions .= implode(', ', array_fill(0, count($RepositoryID), '?'));
             $Conditions .= ")";
@@ -382,14 +446,18 @@ abstract class Collections_Archon {
 
         $arrCollections = $this->loadTable("tblCollections_Collections", "Collection", "SortTitle", $Conditions, $ConditionsTypes, $ConditionsVars);
 
-        if ($MakeIntoIndex) {
+        if ($MakeIntoIndex)
+        {
             $arrIndex = array();
 
-            if (!empty($arrCollections)) {
-                foreach ($arrCollections as &$objCollection) {
+            if (!empty($arrCollections))
+            {
+                foreach ($arrCollections as &$objCollection)
+                {
                     $strCollection = $objCollection->SortTitle;
 
-                    if (is_natural($strCollection{0})) {
+                    if (is_natural($strCollection{0}))
+                    {
                         $arrIndex['#'][$objCollection->ID] = $objCollection;
                     }
 
@@ -400,7 +468,9 @@ abstract class Collections_Archon {
             }
 
             return $arrIndex;
-        } else {
+        }
+        else
+        {
             return $arrCollections;
         }
     }
@@ -413,7 +483,8 @@ abstract class Collections_Archon {
      *
      * @return Books[]
      */
-    public function getAllBooks() {
+    public function getAllBooks()
+    {
         return $this->loadTable("tblCollections_Books", "Book", "Title");
     }
 
@@ -425,7 +496,8 @@ abstract class Collections_Archon {
      *
      * @return DescriptiveRules[]
      */
-    public function getAllDescriptiveRules() {
+    public function getAllDescriptiveRules()
+    {
         return DescriptiveRules::getAllDescriptiveRules();
     }
 
@@ -437,7 +509,8 @@ abstract class Collections_Archon {
      *
      * @return EADElement[]
      */
-    public function getAllEADElements() {
+    public function getAllEADElements()
+    {
         return EADElement::getAllEADElements();
     }
 
@@ -449,7 +522,8 @@ abstract class Collections_Archon {
      *
      * @return ExtentUnit[]
      */
-    public function getAllExtentUnits() {
+    public function getAllExtentUnits()
+    {
         return $this->loadTable("tblCollections_ExtentUnits", "ExtentUnit", "ExtentUnit");
     }
 
@@ -461,7 +535,8 @@ abstract class Collections_Archon {
      *
      * @return LevelContainer[]
      */
-    public function getAllLevelContainers() {
+    public function getAllLevelContainers()
+    {
         return $this->loadTable("tblCollections_LevelContainers", "LevelContainer", "LevelContainer");
     }
 
@@ -473,10 +548,14 @@ abstract class Collections_Archon {
      *
      * @return Location[]
      */
-    public function getAllLocations($ReturnList = false) {
-        if ($ReturnList) {
+    public function getAllLocations($ReturnList = false)
+    {
+        if ($ReturnList)
+        {
             return $this->loadTable("tblCollections_Locations", "Location", "Location");
-        } else {
+        }
+        else
+        {
             return $this->loadTable("tblCollections_Locations", "Location", "Location");
         }
     }
@@ -489,7 +568,8 @@ abstract class Collections_Archon {
      *
      * @return MaterialType[]
      */
-    public function getAllMaterialTypes() {
+    public function getAllMaterialTypes()
+    {
         return $this->loadTable("tblCollections_MaterialTypes", "MaterialType", "MaterialType");
     }
 
@@ -502,7 +582,8 @@ abstract class Collections_Archon {
      *
      * @return ResearchAppointmentField[]
      */
-    public function getAllResearchAppointmentFields() {
+    public function getAllResearchAppointmentFields()
+    {
         return $this->loadTable("tblCollections_ResearchAppointmentFields", "ResearchAppointmentField", "DisplayOrder, Name", NULL, array(), array());
     }
 
@@ -514,7 +595,8 @@ abstract class Collections_Archon {
      *
      * @return ResearchAppointmentPurpose[]
      */
-    public function getAllResearchAppointmentPurposes() {
+    public function getAllResearchAppointmentPurposes()
+    {
         return $this->loadTable("tblCollections_ResearchAppointmentPurposes", "ResearchAppointmentPurpose", "ResearchAppointmentPurpose");
     }
 
@@ -526,7 +608,8 @@ abstract class Collections_Archon {
      *
      * @return ResearcherType[]
      */
-    public function getAllResearcherTypes() {
+    public function getAllResearcherTypes()
+    {
         return $this->loadTable("tblCollections_ResearcherTypes", "ResearcherType", "ResearcherType");
     }
 
@@ -536,22 +619,28 @@ abstract class Collections_Archon {
      * @param integer $ID[optional]
      * @return Classification[]
      */
-    public function getChildClassifications($ID = 0, $OnlyToStringFields = true) {
-        if (!is_natural($ID)) {
+    public function getChildClassifications($ID = 0, $OnlyToStringFields = true)
+    {
+        if (!is_natural($ID))
+        {
             $this->declareError("Could not get Child Classifications: Classification ID must be numeric.");
             return false;
         }
 
-        if ($OnlyToStringFields) {
+        if ($OnlyToStringFields)
+        {
             $vars = $this->getClassVars('Classification');
             $toStringFields = $vars['ToStringFields'];
-        } else {
+        }
+        else
+        {
             $toStringFields = array();
         }
 
         $arrClassifications = $this->loadTable("tblCollections_Classifications", "Classification", "ClassificationIdentifier, Title", "ParentID = ?", array('integer'), array($ID), false, $toStringFields);
 
-        if (!empty($arrClassifications)) {
+        if (!empty($arrClassifications))
+        {
             uasort($arrClassifications, create_function('$a,$b', 'return strnatcmp($a->ClassificationIdentifier, $b->ClassificationIdentifier);'));
             reset($arrClassifications);
         }
@@ -568,20 +657,25 @@ abstract class Collections_Archon {
      * @param integer $CollectionID[optional]
      * @return CollectionContent[]
      */
-    public function getChildCollectionContent($CollectionContentID, $CollectionID = 0) {
+    public function getChildCollectionContent($CollectionContentID, $CollectionID = 0)
+    {
         $CollectionContentID = $CollectionContentID ? $CollectionContentID : 0;
 
-        if (!$CollectionContentID && !$CollectionID) {
+        if (!$CollectionContentID && !$CollectionID)
+        {
             $this->declareError("Could not get Child CollectionContent: CollectionContentIDAndCollectionID not defined.");
             return false;
-        } elseif (!is_natural($CollectionContentID) || !is_natural($CollectionID)) {
+        }
+        elseif (!is_natural($CollectionContentID) || !is_natural($CollectionID))
+        {
             $this->declareError("Could not get Child CollectionContent: CollectionContentIDAndCollectionID must be numeric.");
             return false;
         }
 
         $collectiontypes = array();
         $collectionvars = array();
-        if ($CollectionID) {
+        if ($CollectionID)
+        {
             $collectionquery = "AND tblCollections_Content.CollectionID = ?";
             $collectiontypes[] = 'integer';
             $collectionvars[] = $CollectionID;
@@ -594,16 +688,19 @@ abstract class Collections_Archon {
         $query = "SELECT tblCollections_Content.* FROM tblCollections_Content JOIN tblCollections_LevelContainers ON tblCollections_LevelContainers.ID = tblCollections_Content.LevelContainerID WHERE tblCollections_Content.ParentID = ? $collectionquery ORDER BY tblCollections_Content.SortOrder";
 
         static $preps = array();
-        if (!isset($preps[$query])) {
+        if (!isset($preps[$query]))
+        {
             $preps[$query] = $this->mdb2->prepare($query, array_merge(array('integer'), $collectiontypes), MDB2_PREPARE_RESULT);
         }
 
         $result = $preps[$query]->execute(array_merge(array($CollectionContentID), $collectionvars));
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $objContent = New CollectionContent($row);
             $objContent->LevelContainer = $arrLevelContainers[$objContent->LevelContainerID];
 
@@ -624,19 +721,24 @@ abstract class Collections_Archon {
      * @param integer[] $arrIDs
      * @return Classification[]
      */
-    public function getClassificationArrayFromIDArray($arrIDs) {
-        if (empty($arrIDs)) {
+    public function getClassificationArrayFromIDArray($arrIDs)
+    {
+        if (empty($arrIDs))
+        {
             $this->declareError("Could not get Classification Array: No IDs specified.");
             return false;
         }
 
-        if (!is_array($arrIDs)) {
+        if (!is_array($arrIDs))
+        {
             $this->declareError("Could not get Classification Array: Argument is not an array.");
             return false;
         }
 
-        foreach ($arrIDs as $ID) {
-            if (is_natural($ID) && $ID >= 0) {
+        foreach ($arrIDs as $ID)
+        {
+            if (is_natural($ID) && $ID >= 0)
+            {
                 $Condition .= "ID = '$ID' OR ";
             }
         }
@@ -646,14 +748,18 @@ abstract class Collections_Archon {
 
         $arrClassifications = $this->loadTable("tblCollections_Classifications", 'Classification', 'ClassificationIdentifier, Title', $Condition);
 
-        if (!empty($arrClassifications)) {
-            foreach ($arrClassifications as &$objClassification) {
-                if ($objClassification->ParentID) {
+        if (!empty($arrClassifications))
+        {
+            foreach ($arrClassifications as &$objClassification)
+            {
+                if ($objClassification->ParentID)
+                {
                     $objClassification->Parent = New Classification($objClassification->ParentID);
                     $objClassification->dbLoad();
                 }
 
-                if ($objClassification->CreatorID) {
+                if ($objClassification->CreatorID)
+                {
                     $objClassification->Creator = New Creator($objClassification->CreatorID);
                     $objClassification->dbLoad();
                 }
@@ -672,18 +778,21 @@ abstract class Collections_Archon {
      * @param string $RecordGroupNumber
      * @return integer
      */
-    public function getClassificationIDForNumber($RecordGroupNumber) {
+    public function getClassificationIDForNumber($RecordGroupNumber)
+    {
         global $_ARCHON;
 
         $ClassificationID = 0;
         static $preps = array();
 
-        if ($RecordGroupNumber != '') {
+        if ($RecordGroupNumber != '')
+        {
             $arrClassifications = explode("/", $RecordGroupNumber);
 
             $ClassificationID = 0;
 
-            foreach ($arrClassifications as $ClassificationIdentifier) {
+            foreach ($arrClassifications as $ClassificationIdentifier)
+            {
                 $prevClassificationID = $ClassificationID;
 
                 $prevIDquery = "AND ParentID = ?";
@@ -691,11 +800,14 @@ abstract class Collections_Archon {
                 $prevIDvars = array($prevClassificationID);
 
                 // Will find 001 if somebody has typed either 1 or 001.
-                if (is_natural($ClassificationIdentifier)) {
+                if (is_natural($ClassificationIdentifier))
+                {
                     $minLengthQuery = " OR ClassificationIdentifier = ?";
                     $minLengthTypes = array('text');
                     $minLengthVars = array(str_pad($ClassificationIdentifier, CONFIG_COLLECTIONS_CLASSIFICATION_IDENTIFIER_MINIMUM_LENGTH, "0", STR_PAD_LEFT));
-                } else {
+                }
+                else
+                {
                     $minLengthQuery = '';
                     $minLengthTypes = array();
                     $minLengthVars = array();
@@ -705,11 +817,13 @@ abstract class Collections_Archon {
                 $types = array_merge(array('text'), $minLengthTypes, $prevIDtypes);
                 $vars = array_merge(array($ClassificationIdentifier), $minLengthVars, $prevIDvars);
 
-                if (!isset($preps[$query])) {
+                if (!isset($preps[$query]))
+                {
                     $preps[$query] = $this->mdb2->prepare($query, $types, MDB2_PREPARE_RESULT);
                 }
                 $result = $preps[$query]->execute($vars);
-                if (PEAR::isError($result)) {
+                if (PEAR::isError($result))
+                {
                     trigger_error($result->getMessage(), E_USER_ERROR);
                 }
 
@@ -717,7 +831,8 @@ abstract class Collections_Archon {
                 $result->free();
 
                 $ClassificationID = $row['ID'];
-                if (!$ClassificationID) {
+                if (!$ClassificationID)
+                {
                     $ClassificationID = 0;
                     break;
                 }
@@ -736,45 +851,54 @@ abstract class Collections_Archon {
      * @param integer $ParentID[optional]
      * @return integer
      */
-    public function getCollectionContentIDFromData($CollectionID, $LevelContainerID, $LevelContainerIdentifier, $ParentID = 0) {
-        if (!$CollectionID) {
+    public function getCollectionContentIDFromData($CollectionID, $LevelContainerID, $LevelContainerIdentifier, $ParentID = 0)
+    {
+        if (!$CollectionID)
+        {
             $this->declareError("Could not get CollectionContentID: Collection ID not defined.");
             return false;
         }
 
-        if (!$LevelContainerID) {
+        if (!$LevelContainerID)
+        {
             $this->declareError("Could not get CollectionContentID: LevelContainer ID not defined.");
             return false;
         }
 
-        if (!$LevelContainerIdentifier) {
+        if (!$LevelContainerIdentifier)
+        {
             $this->declareError("Could not get CollectionContentID: Container Label not defined.");
             return false;
         }
 
-        if (!is_natural($CollectionID)) {
+        if (!is_natural($CollectionID))
+        {
             $this->declareError("Could not get CollectionContentID: Collection ID must be numeric.");
             return false;
         }
 
-        if (!is_natural($LevelContainerID)) {
+        if (!is_natural($LevelContainerID))
+        {
             $this->declareError("Could not get CollectionContentID: LevelContainer ID must be numeric.");
             return false;
         }
 
-        if (!is_natural($ParentID)) {
+        if (!is_natural($ParentID))
+        {
             $this->declareError("Could not get CollectionContentID: Parent ID must be numeric.");
             return false;
         }
 
         $query = "SELECT ID FROM tblCollections_Content WHERE CollectionID = ? AND LevelContainerID = ? AND LevelContainerIdentifier = ? AND ParentID = ?";
         static $prep = NULL;
-        if (!isset($prep)) {
+        if (!isset($prep))
+        {
             $this->mdb2->setLimit(1);
             $prep = $this->mdb2->prepare($query, array('integer', 'integer', 'text', 'integer'), MDB2_PREPARE_RESULT);
         }
         $result = $prep->execute(array($CollectionID, $LevelContainerID, $LevelContainerIdentifier, $ParentID));
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
@@ -794,10 +918,12 @@ abstract class Collections_Archon {
      * @param string $RecordSeriesNumber
      * @return integer
      */
-    public function getCollectionIDForNumber($RecordSeriesNumber) {
+    public function getCollectionIDForNumber($RecordSeriesNumber)
+    {
         global $_ARCHON;
 
-        if (!$RecordSeriesNumber) {
+        if (!$RecordSeriesNumber)
+        {
             return 0;
         }
 
@@ -806,12 +932,11 @@ abstract class Collections_Archon {
         $CollectionID = 0;
 
         $arrClassifications = explode("/", $RecordSeriesNumber);
-//        echo " 3" . $RecordSeriesNumber;
         $ClassificationID = 0;
         $mySearch = true;
-        while (count($arrClassifications) > 1) {
+        while (count($arrClassifications) > 1)
+        {
             $mySearch = false;
-//            echo " count = " . count($arrClassifications);
             $ClassificationIdentifier = array_shift($arrClassifications);
             $prevClassificationID = $ClassificationID;
 
@@ -820,13 +945,14 @@ abstract class Collections_Archon {
             $prevIDvars = array($prevClassificationID);
 
             // Will find 001 if somebody has typed either 1 or 001.
-            if (is_natural($ClassificationIdentifier)) {
-//                echo " 4";
+            if (is_natural($ClassificationIdentifier))
+            {
                 $minLengthQuery = " OR ClassificationIdentifier = ?";
                 $minLengthTypes = array('text');
                 $minLengthVars = array(str_pad($ClassificationIdentifier, CONFIG_COLLECTIONS_CLASSIFICATION_IDENTIFIER_MINIMUM_LENGTH, "0", STR_PAD_LEFT));
-            } else {
-//                echo " 5";
+            }
+            else
+            {
                 $minLengthQuery = '';
                 $minLengthTypes = array();
                 $minLengthVars = array();
@@ -835,21 +961,26 @@ abstract class Collections_Archon {
             $query = "SELECT ID FROM tblCollections_Classifications WHERE (ClassificationIdentifier = ?$minLengthQuery) $prevIDquery";
             $types = array_merge(array('text'), $minLengthTypes, $prevIDtypes);
             $vars = array_merge(array($ClassificationIdentifier), $minLengthVars, $prevIDvars);
-//            echo " 6";
-            if (!isset($preps[$query])) {
+
+            if (!isset($preps[$query]))
+            {
                 $preps[$query] = $this->mdb2->prepare($query, $types, MDB2_PREPARE_RESULT);
             }
             $result = $preps[$query]->execute($vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
-//echo $query;exit;
+
             $row = $result->fetchRow();
             $result->free();
 
-            if ($row['ID']) {
+            if ($row['ID'])
+            {
                 $ClassificationID = $row['ID'];
-            } else {
+            }
+            else
+            {
                 array_unshift($arrClassifications, $ClassificationIdentifier);
                 break;
             }
@@ -857,44 +988,53 @@ abstract class Collections_Archon {
 
         $CollectionIdentifier = implode('/', $arrClassifications);
 
-        if (is_natural($CollectionIdentifier)) {
-//            echo " 7";
-            $minLengthQuery = " OR CollectionIdentifier LIKE ?";
+        if (is_natural($CollectionIdentifier))
+        {
+            $minLengthQuery = " OR CollectionIdentifier LIKE ?"; // replace = with Like
             $minLengthTypes = array('text');
-            $minLengthVars = array(str_pad("%$CollectionIdentifier%", CONFIG_COLLECTIONS_COLLECTION_IDENTIFIER_MINIMUM_LENGTH, "0", STR_PAD_LEFT));
-        } else {
-//            echo " 8";
+            $minLengthVars = array(str_pad("%$CollectionIdentifier%", CONFIG_COLLECTIONS_COLLECTION_IDENTIFIER_MINIMUM_LENGTH, "0", STR_PAD_LEFT)); //added wildcards with $CollectionIdentifier for partial search
+        }
+        else
+        {
             $minLengthQuery = '';
             $minLengthTypes = array();
             $minLengthVars = array();
         }
-//        echo " 9 cid == " . $ClassificationID;
 
-        if ($ClassificationID != 0 && !$mySearch) {
-            $query = "SELECT ID FROM tblCollections_Collections WHERE ClassificationID = ? AND (CollectionIdentifier LIKE ?$minLengthQuery);";
+        if ($ClassificationID != 0 && !$mySearch)
+        {
+            $query = "SELECT ID FROM tblCollections_Collections WHERE ClassificationID = ? AND (CollectionIdentifier LIKE ?$minLengthQuery);"; // change exact search to partial on collection identifier using Like statement
             $types = array_merge(array('integer', 'text'), $minLengthTypes);
             $vars = array_merge(array($ClassificationID, "%$CollectionIdentifier%"), $minLengthVars);
-           
-        } else {
-            $query = "SELECT tblCollections_Collections.ID FROM tblCollections_Collections JOIN tblCollections_Classifications ON tblCollections_Classifications.ID = tblCollections_Collections.ClassificationID WHERE (CollectionIdentifier LIKE ? OR ClassificationIdentifier LIKE ?$minLengthQuery);";
+        }
+        else
+        {
+            // implemented partial search on collection and classification identifier
+            $query = "SELECT tblCollections_Collections.ID FROM tblCollections_Collections LEFT JOIN tblCollections_Classifications ON tblCollections_Classifications.ID = tblCollections_Collections.ClassificationID WHERE (CollectionIdentifier LIKE ? OR ClassificationIdentifier LIKE ?$minLengthQuery);";
             $types = array_merge(array('text', 'text'), $minLengthTypes);
             $vars = array_merge(array("%$CollectionIdentifier%", "%$CollectionIdentifier%"), $minLengthVars);
         }
-        if (!isset($preps[$query])) {
+        if (!isset($preps[$query]))
+        {
             $preps[$query] = $this->mdb2->prepare($query, $types, MDB2_PREPARE_RESULT);
         }
         $result = $preps[$query]->execute($vars);
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
         $rows = $result->fetchAll();
         $result->free();
         $ids = array();
-        if (!empty($rows)) {
-            foreach ($rows as $row) {
+        if (!empty($rows))
+        {
+            foreach ($rows as $row)
+            {
                 $ids[] = $row["ID"];
             }
-        } else {
+        }
+        else
+        {
             return 0;
         }
         return implode(",", $ids);
@@ -909,13 +1049,16 @@ abstract class Collections_Archon {
      * @param integer $RepositoryID[optional]
      * @return Collection[]
      */
-    public function getCollectionsForChar($Char, $ExcludeDisabledCollections = false, $RepositoryID = 0, $Fields = array()) {
-        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ)) {
+    public function getCollectionsForChar($Char, $ExcludeDisabledCollections = false, $RepositoryID = 0, $Fields = array())
+    {
+        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ))
+        {
             $ExcludeDisabledCollections = true;
         }
 
 
-        if (!$Char) {
+        if (!$Char)
+        {
             $this->declareError("Could not get Collections: Character not defined.");
             return false;
         }
@@ -924,15 +1067,19 @@ abstract class Collections_Archon {
 
         $andTypes = array();
         $andVars = array();
-        if ($ExcludeDisabledCollections) {
+        if ($ExcludeDisabledCollections)
+        {
             $andquery = " AND Enabled = '1'";
         }
 
-        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0) {
+        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0)
+        {
             $andquery .= " AND (tblCollections_Collections.RepositoryID = ?)";
             array_push($andTypes, 'integer');
             array_push($andVars, $RepositoryID);
-        } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+        }
+        elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+        {
             $andquery .= " AND RepositoryID IN (";
             $andquery .= implode(', ', array_fill(0, count($RepositoryID), '?'));
             $andquery .= ")";
@@ -949,10 +1096,12 @@ abstract class Collections_Archon {
 //         array_push($andVars, $RepositoryID);
 //      }
 
-        if (!empty($Fields) && is_array($Fields)) {
+        if (!empty($Fields) && is_array($Fields))
+        {
             $tmpCollection = new Collection();
             $badFields = array_diff($Fields, array_keys(get_object_vars($tmpCollection)));
-            if (!empty($badFields)) {
+            if (!empty($badFields))
+            {
                 $this->declareError("Could not load Collections: Field(s) '" . implode(',', $badFields) . "' do not exist in Class Collection.");
                 return false;
             }
@@ -963,19 +1112,24 @@ abstract class Collections_Archon {
 
         $selectFields = ($selectFields) ? $selectFields : '*';
 
-        if ($Char == '#') {
+        if ($Char == '#')
+        {
             $query = "SELECT {$selectFields} FROM tblCollections_Collections WHERE (SortTitle LIKE '0%' OR SortTitle LIKE '1%' OR SortTitle LIKE '2%' OR SortTitle LIKE '3%' OR SortTitle LIKE '4%' OR SortTitle LIKE '5%' OR SortTitle LIKE '6%' OR SortTitle LIKE '7%' OR SortTitle LIKE '8%' OR SortTitle LIKE '9%') $andquery ORDER BY SortTitle";
-        } else {
+        }
+        else
+        {
             $query = "SELECT {$selectFields} FROM tblCollections_Collections WHERE SortTitle LIKE '{$this->mdb2->escape($Char, true)}%' $andquery ORDER BY SortTitle";
         }
 
         $prep = $this->mdb2->prepare($query, $andTypes, MDB2_PREPARE_RESULT);
         $result = $prep->execute($andVars);
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $arrCollections[$row['ID']] = New Collection($row);
         }
         $result->free();
@@ -992,9 +1146,11 @@ abstract class Collections_Archon {
      * @param integer $BookID[optional]
      * @return Book[]
      */
-    public function getBooksForChar($Char) {
+    public function getBooksForChar($Char)
+    {
 
-        if (!$Char) {
+        if (!$Char)
+        {
             $this->declareError("Could not get Books: Character not defined.");
             return false;
         }
@@ -1002,18 +1158,23 @@ abstract class Collections_Archon {
         $arrBooks = array();
 
 
-        if ($Char == '#') {
+        if ($Char == '#')
+        {
             $query = "SELECT * FROM tblCollections_Books WHERE (Title LIKE '0%' OR Title LIKE '1%' OR Title LIKE '2%' OR Title LIKE '3%' OR Title LIKE '4%' OR Title LIKE '5%' OR Title LIKE '6%' OR Title LIKE '7%' OR Title LIKE '8%' OR Title LIKE '9%') ORDER BY Title";
-        } else {
+        }
+        else
+        {
             $query = "SELECT * FROM tblCollections_Books WHERE Title LIKE '{$this->mdb2->escape($Char, true)}%' ORDER BY Title";
         }
         $result = $this->mdb2->query($query);
 
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $arrBooks[$row['ID']] = New Book($row);
         }
         $result->free();
@@ -1030,20 +1191,24 @@ abstract class Collections_Archon {
      * @param boolean $ExcludeDisabledCollections[optional]
      * @return Collection[]
      */
-    public function getCollectionsForClassification($ClassificationID, $ExcludeDisabledCollections = false) {
-        if (!$ClassificationID) {
+    public function getCollectionsForClassification($ClassificationID, $ExcludeDisabledCollections = false)
+    {
+        if (!$ClassificationID)
+        {
             $this->declareError("Could not get Collections: Classification ID not defined.");
             return false;
         }
 
-        if (!is_natural($ClassificationID)) {
+        if (!is_natural($ClassificationID))
+        {
             $this->declareError("Could not get Collections: Classification ID must be numeric.");
             return false;
         }
 
         $arrCollections = array();
 
-        if ($ExcludeDisabledCollections) {
+        if ($ExcludeDisabledCollections)
+        {
             $andquery = "AND Enabled = '1'";
         }
         $andtypes = array();
@@ -1054,11 +1219,13 @@ abstract class Collections_Archon {
         $query = "SELECT * FROM tblCollections_Collections WHERE ClassificationID = ? $andquery";
         $prep = $this->mdb2->prepare($query, array_merge(array('integer'), $andtypes), MDB2_PREPARE_RESULT);
         $result = $prep->execute(array_merge(array($ClassificationID), $andvars));
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $arrCollections[$row['ID']] = New Collection($row);
         }
         $result->free();
@@ -1091,12 +1258,14 @@ abstract class Collections_Archon {
      * @param string $String
      * @return integer
      */
-    public function getLevelContainerIDFromString($String) {
+    public function getLevelContainerIDFromString($String)
+    {
         // Case insensitve, but exact match
         $this->mdb2->setLimit(1);
         $prep = $this->mdb2->prepare('SELECT ID FROM tblCollections_LevelContainers WHERE LevelContainer LIKE ?', 'text', MDB2_PREPARE_RESULT);
         $result = $prep->execute($String);
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
@@ -1117,7 +1286,8 @@ abstract class Collections_Archon {
      * @param string $String
      * @return integer
      */
-    public function getEADElementIDFromString($String) {
+    public function getEADElementIDFromString($String)
+    {
         return EADElement::getEADElementIDFromString($String);
     }
 
@@ -1132,13 +1302,16 @@ abstract class Collections_Archon {
      * @param int $LocationID
      * @return array
      */
-    public function getExtentForLocation($LocationID) {
-        if (!$LocationID) {
+    public function getExtentForLocation($LocationID)
+    {
+        if (!$LocationID)
+        {
             $this->declareError("Could not get Collections: Location ID not defined.");
             return false;
         }
 
-        if (!is_natural($LocationID)) {
+        if (!is_natural($LocationID))
+        {
             $this->declareError("Could not get Collections: Location ID must be numeric.");
             return false;
         }
@@ -1146,28 +1319,34 @@ abstract class Collections_Archon {
         $arrObjects = array();
 
         static $prep = NULL;
-        if (!isset($prep)) {
+        if (!isset($prep))
+        {
             $query = "SELECT Extent, ExtentUnitID FROM tblCollections_CollectionLocationIndex, tblCollections_ExtentUnits WHERE tblCollections_CollectionLocationIndex.ExtentUnitID = tblCollections_ExtentUnits.ID AND LocationID = ? ORDER BY tblCollections_ExtentUnits.ExtentUnit";
             $prep = $this->mdb2->prepare($query, 'integer', MDB2_PREPARE_RESULT);
         }
         $result = $prep->execute($LocationID);
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        if ($result->numRows() > 0) {
+        if ($result->numRows() > 0)
+        {
             $arrExtentUnits = $this->getAllExtentUnits();
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $arrObjects[$row['ExtentUnitID']]->Extent += $row['Extent'];
         }
         $result->free();
 
         // We will do the ExtentUnits assignment outside of the loop
         // in order to be more efficent (in the case there are many rows).
-        if (!empty($arrObjects)) {
-            foreach ($arrObjects as $ExtentUnitID => &$obj) {
+        if (!empty($arrObjects))
+        {
+            foreach ($arrObjects as $ExtentUnitID => &$obj)
+            {
                 $obj->ExtentUnit = $arrExtentUnits[$ExtentUnitID];
             }
         }
@@ -1183,7 +1362,8 @@ abstract class Collections_Archon {
      * @param string $String
      * @return integer
      */
-    public function getExtentUnitIDFromString($String) {
+    public function getExtentUnitIDFromString($String)
+    {
         // Case insensitve, but exact match
         $this->mdb2->setLimit(1);
         $prep = $this->mdb2->prepare('SELECT ID FROM tblCollections_ExtentUnits WHERE ExtentUnit LIKE ?', 'text', MDB2_PREPARE_RESULT);
@@ -1206,12 +1386,14 @@ abstract class Collections_Archon {
      * @param string $String
      * @return integer
      */
-    public function getMaterialTypeIDFromString($String) {
+    public function getMaterialTypeIDFromString($String)
+    {
         // Case insensitve, but exact match
         $this->mdb2->setLimit(1);
         $prep = $this->mdb2->prepare('SELECT ID FROM tblCollections_MaterialTypes WHERE MaterialType LIKE ?', 'text', MDB2_PREPARE_RESULT);
         $result = $prep->execute($String);
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
@@ -1232,41 +1414,49 @@ abstract class Collections_Archon {
      * @param integer $ParentID[optional]
      * @return integer
      */
-    public function getNextLevelContainerIdentifier($CollectionID, $LevelContainerID, $ParentID = 0) {
-        if (!$CollectionID) {
+    public function getNextLevelContainerIdentifier($CollectionID, $LevelContainerID, $ParentID = 0)
+    {
+        if (!$CollectionID)
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Collection ID not defined.");
             return false;
         }
 
-        if (!$LevelContainerID) {
+        if (!$LevelContainerID)
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: LevelContainer ID not defined.");
             return false;
         }
 
-        if (!is_natural($CollectionID)) {
+        if (!is_natural($CollectionID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Collection ID must be numeric.");
             return false;
         }
 
-        if (!is_natural($LevelContainerID)) {
+        if (!is_natural($LevelContainerID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: LevelContainer ID must be numeric.");
             return false;
         }
 
-        if (!is_natural($ParentID)) {
+        if (!is_natural($ParentID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Parent ID must be numeric.");
             return false;
         }
 
         static $prep = NULL;
-        if (!isset($prep)) {
+        if (!isset($prep))
+        {
             //$query = "SELECT LevelContainerIdentifier FROM tblCollections_Content WHERE CollectionID = ? AND LevelContainerID = ? AND ParentID = ? ORDER BY LevelContainerIdentifier DESC";
             $query = "SELECT LevelContainerIdentifier FROM tblCollections_Content WHERE CollectionID = ? AND LevelContainerID = ? AND ParentID = ? ORDER BY SortOrder DESC";
             $this->mdb2->setLimit(1);
             $prep = $this->mdb2->prepare($query, array('integer', 'integer', 'integer'), MDB2_PREPARE_RESULT);
         }
         $result = $prep->execute(array($CollectionID, $LevelContainerID, $ParentID));
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
@@ -1276,22 +1466,27 @@ abstract class Collections_Archon {
         return $row['LevelContainerIdentifier'] + 1;
     }
 
-    public function getNextContentSortOrder($CollectionID, $ParentID = 0, $ExcludeID = NULL) {
-        if (!$CollectionID) {
+    public function getNextContentSortOrder($CollectionID, $ParentID = 0, $ExcludeID = NULL)
+    {
+        if (!$CollectionID)
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Collection ID not defined.");
             return false;
         }
 
-        if (!is_natural($CollectionID)) {
+        if (!is_natural($CollectionID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Collection ID must be numeric.");
             return false;
         }
 
-        if (!is_natural($ParentID)) {
+        if (!is_natural($ParentID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Parent ID must be numeric.");
             return false;
         }
-        if ($ExcludeID != NULL && !is_natural($ExcludeID)) {
+        if ($ExcludeID != NULL && !is_natural($ExcludeID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: ID must be numeric.");
             return false;
         }
@@ -1303,15 +1498,20 @@ abstract class Collections_Archon {
 //      static $exIDlistprep = NULL;
 //      if ($LevelContainerID)
 //      {
-        if (!$ExcludeID) {
-            if (!isset($prep)) {
+        if (!$ExcludeID)
+        {
+            if (!isset($prep))
+            {
                 $query = "SELECT MAX(SortOrder) AS MaxSortOrder FROM tblCollections_Content WHERE CollectionID = ? AND ParentID = ?";
                 $this->mdb2->setLimit(1);
                 $prep = $this->mdb2->prepare($query, array('integer', 'integer'), MDB2_PREPARE_RESULT);
             }
             $result = $prep->execute(array($CollectionID, $ParentID));
-        } else {
-            if (!isset($exIDprep)) {
+        }
+        else
+        {
+            if (!isset($exIDprep))
+            {
                 $query = "SELECT MAX(SortOrder) AS MaxSortOrder FROM tblCollections_Content WHERE CollectionID = ? AND ParentID = ? AND ID != ?";
                 $this->mdb2->setLimit(1);
                 $exIDprep = $this->mdb2->prepare($query, array('integer', 'integer', 'integer'), MDB2_PREPARE_RESULT);
@@ -1320,7 +1520,8 @@ abstract class Collections_Archon {
             $result = $exIDprep->execute(array($CollectionID, $ParentID, $ExcludeID));
         }
 
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
@@ -1364,22 +1565,27 @@ abstract class Collections_Archon {
 //      }
     }
 
-    public function getCollectionContentLevel($CollectionID, $ParentID = 0, $ExcludeID = NULL) {
-        if (!$CollectionID) {
+    public function getCollectionContentLevel($CollectionID, $ParentID = 0, $ExcludeID = NULL)
+    {
+        if (!$CollectionID)
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Collection ID not defined.");
             return false;
         }
 
-        if (!is_natural($CollectionID)) {
+        if (!is_natural($CollectionID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Collection ID must be numeric.");
             return false;
         }
 
-        if (!is_natural($ParentID)) {
+        if (!is_natural($ParentID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: Parent ID must be numeric.");
             return false;
         }
-        if ($ExcludeID != NULL && !is_natural($ExcludeID)) {
+        if ($ExcludeID != NULL && !is_natural($ExcludeID))
+        {
             $this->declareError("Could not get NextLevelContainerIdentifier: ID must be numeric.");
             return false;
         }
@@ -1387,23 +1593,27 @@ abstract class Collections_Archon {
         $arrContent = array();
 
         static $prep = NULL;
-        if (!isset($prep)) {
+        if (!isset($prep))
+        {
             $query = "SELECT * FROM tblCollections_Content WHERE CollectionID = ? AND ParentID = ? ORDER BY SortOrder";
             $prep = $this->mdb2->prepare($query, array('integer', 'integer'), MDB2_PREPARE_RESULT);
         }
         $result = $prep->execute(array($CollectionID, $ParentID));
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $objContent = New CollectionContent($row);
 
             $arrContent[$objContent->ID] = $objContent;
         }
         $result->free();
 
-        if ($ExcludeID) {
+        if ($ExcludeID)
+        {
             unset($arrContent[$ExcludeID]);
         }
 
@@ -1418,18 +1628,23 @@ abstract class Collections_Archon {
      * @param integer $ID
      * @return CollectionContent[]
      */
-    public function getSiblingCollectionContent($ID) {
-        if (!$ID) {
+    public function getSiblingCollectionContent($ID)
+    {
+        if (!$ID)
+        {
             $this->declareError("Could not get Sibling CollectionContent: CollectionContent ID not defined.");
             return false;
-        } elseif (!is_natural($ID)) {
+        }
+        elseif (!is_natural($ID))
+        {
             $this->declareError("Could not get Sibling CollectionContent: CollectionContent ID must be numeric.");
             return false;
         }
 
         $objContent = New CollectionContent($ID);
 
-        if (!$objContent->dbLoad()) {
+        if (!$objContent->dbLoad())
+        {
             $this->declareError("Could not get Sibling CollectionContent: There was already an error.");
             return false;
         }
@@ -1439,16 +1654,19 @@ abstract class Collections_Archon {
         $arrLevelContainers = $this->getAllLevelContainers();
 
         static $prep = NULL;
-        if (!isset($prep)) {
+        if (!isset($prep))
+        {
             $query = "SELECT tblCollections_Content.* FROM tblCollections_Content JOIN tblCollections_LevelContainers ON tblCollections_LevelContainers.ID = tblCollections_Content.LevelContainerID WHERE tblCollections_Content.ParentID = ? AND tblCollections_Content.CollectionID = ? ORDER BY tblCollections_Content.SortOrder";
             $prep = $this->mdb2->prepare($query, array('integer', 'integer'), MDB2_PREPARE_RESULT);
         }
         $result = $prep->execute(array($objContent->ParentID, $objContent->CollectionID));
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $objContent = New CollectionContent($row);
             $objContent->LevelContainer = $arrLevelContainers[$objContent->LevelContainerID];
 
@@ -1472,10 +1690,12 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return Classification[]
      */
-    public function searchClassifications($SearchQuery, $ParentID = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchClassifications($SearchQuery, $ParentID = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         $ConditionANDTypes = array();
         $ConditionANDVars = array();
-        if (isset($ParentID) && is_natural($ParentID)) {
+        if (isset($ParentID) && is_natural($ParentID))
+        {
             $ConditionAND = "ParentID = ?";
             $ConditionANDTypes[] = 'integer';
             $ConditionANDVars[] = $ParentID;
@@ -1483,7 +1703,8 @@ abstract class Collections_Archon {
 
         $arrClassifications = $this->searchTable($SearchQuery, 'tblCollections_Classifications', 'Title', 'Classification', 'ClassificationIdentifier, Title', $ConditionAND, $ConditionANDTypes, $ConditionANDVars, NULL, array(), array(), $Limit, $Offset);
 
-        if (!empty($arrClassifications)) {
+        if (!empty($arrClassifications))
+        {
             uasort($arrClassifications, create_function('$a,$b', 'return strnatcmp($a->ClassificationIdentifier, $b->ClassificationIdentifier);'));
             reset($arrClassifications);
         }
@@ -1500,35 +1721,48 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return Classification[]
      */
-    public function searchCollectionContent($SearchQuery, $SearchFlags = SEARCH_COLLECTIONCONTENT, $CollectionID = 0, $RepositoryID = 0, $ParentID = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchCollectionContent($SearchQuery, $SearchFlags = SEARCH_COLLECTIONCONTENT, $CollectionID = 0, $RepositoryID = 0, $ParentID = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         $arrContent = array();
 
-        if (!($SearchFlags & SEARCH_COLLECTIONCONTENT)) {
+        if (!($SearchFlags & SEARCH_COLLECTIONCONTENT))
+        {
             return $arrContent;
         }
 
         //TODO: implement content level enable/disable check
         $enabledquery = " AND (";
-        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONCONTENT) {
+        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONCONTENT)
+        {
             $enabledquery .= "tblCollections_Collections.Enabled = '1'";
 
-            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONCONTENT) {
+            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONCONTENT)
+            {
                 $enabledquery .= " OR tblCollections_Collections.Enabled = '0'";
             }
-        } else {
+        }
+        else
+        {
             $enabledquery = "tblCollections_Collections.Enabled = '0'";
         }
         $enabledquery .= ")";
         $enabledtypes = array();
         $enabledvars = array();
 
-        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0)) {
+        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0))
+        {
             $limitparams = array($Limit, $Offset);
-        } elseif (is_natural($Offset) && $Offset > 0) {
+        }
+        elseif (is_natural($Offset) && $Offset > 0)
+        {
             $limitparams = array(4294967295, $Offset);
-        } elseif (is_natural($Limit) && $Limit > 0) {
+        }
+        elseif (is_natural($Limit) && $Limit > 0)
+        {
             $limitparams = array($Limit);
-        } else {
+        }
+        else
+        {
             $limitparams = array(4294967295);
         }
 
@@ -1537,26 +1771,34 @@ abstract class Collections_Archon {
         $texttypes = array();
         $textvars = array();
 
-        if (!empty($arrWords)) {
+        if (!empty($arrWords))
+        {
             $i = 0;
-            foreach ($arrWords as $word) {
+            foreach ($arrWords as $word)
+            {
                 $i++;
-                if ($word{0} == "-") {
+                if ($word{0} == "-")
+                {
                     $word = encoding_substr($word, 1, encoding_strlen($word) - 1);
                     $textquery .= "(tblCollections_Content.Title NOT LIKE ? AND tblCollections_Content.Description NOT LIKE ?)";
                     array_push($texttypes, 'text', 'text');
                     array_push($textvars, "%$word%", "%$word%");
-                } else {
+                }
+                else
+                {
                     $textquery .= "(tblCollections_Content.Title LIKE ? OR tblCollections_Content.Description LIKE ?)";
                     array_push($texttypes, 'text', 'text');
                     array_push($textvars, "%$word%", "%$word%");
                 }
 
-                if ($i < count($arrWords)) {
+                if ($i < count($arrWords))
+                {
                     $textquery .= " AND ";
                 }
             }
-        } else {
+        }
+        else
+        {
             $textquery = "tblCollections_Content.Title LIKE '%%' OR tblCollections_Content.Title IS NULL";
         }
 
@@ -1565,7 +1807,8 @@ abstract class Collections_Archon {
         $idquery = "";
         $idtypes = array();
         $idvars = array();
-        if (is_natural($SearchQuery)) {
+        if (is_natural($SearchQuery))
+        {
             $idquery = " OR (tblCollections_Content.ID = ?)";
             $idtypes[] = 'integer';
             $idvars[] = $SearchQuery;
@@ -1576,11 +1819,14 @@ abstract class Collections_Archon {
         $subvars = array();
 
 
-        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0) {
+        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0)
+        {
             $subquery .= " AND (tblCollections_Collections.RepositoryID = ?)";
             $subtypes[] = 'integer';
             $subvars[] = $RepositoryID;
-        } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+        }
+        elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+        {
             $subquery .= " AND RepositoryID IN (";
             $subquery .= implode(', ', array_fill(0, count($RepositoryID), '?'));
             $subquery .= ")";
@@ -1590,13 +1836,15 @@ abstract class Collections_Archon {
         }
 
 
-        if (isset($ParentID) && is_natural($ParentID)) {
+        if (isset($ParentID) && is_natural($ParentID))
+        {
             $subquery .= " AND (tblCollections_Content.ParentID = ?)";
             $subtypes[] = 'integer';
             $subvars[] = $ParentID;
         }
 
-        if ($CollectionID && is_natural($CollectionID)) {
+        if ($CollectionID && is_natural($CollectionID))
+        {
             $subquery .= " AND (tblCollections_Collections.ID = ?)";
             $subtypes[] = 'integer';
             $subvars[] = $CollectionID;
@@ -1605,7 +1853,8 @@ abstract class Collections_Archon {
         $userfieldquery = '(1 = 0)';
         $userfieldtypes = array();
         $userfieldvars = array();
-        if ($SearchFlags & SEARCH_USERFIELDS) {
+        if ($SearchFlags & SEARCH_USERFIELDS)
+        {
             $userfieldquery = str_replace("tblCollections_Content.Title ", "tblCollections_UserFields.Title ", $textquery);
             $userfieldquery = str_replace("tblCollections_Content.Description ", "tblCollections_UserFields.Value ", $userfieldquery);
             $userfieldtypes = $texttypes;
@@ -1617,15 +1866,18 @@ abstract class Collections_Archon {
         call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
         $prep = $this->mdb2->prepare($query, array_merge($userfieldtypes, $texttypes, $idtypes, $subtypes, $enabledtypes), MDB2_PREPARE_RESULT);
         $result = $prep->execute(array_merge($userfieldvars, $textvars, $idvars, $subvars, $enabledvars));
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($result))
+        {
             trigger_error($result->getMessage(), E_USER_ERROR);
         }
 
-        if ($result->numRows()) {
+        if ($result->numRows())
+        {
             $arrLevelContainers = $this->getAllLevelContainers();
         }
 
-        while ($row = $result->fetchRow()) {
+        while ($row = $result->fetchRow())
+        {
             $objContent = New CollectionContent($row);
             $objContent->LevelContainer = $arrLevelContainers[$objContent->LevelContainerID];
 
@@ -1661,28 +1913,35 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return Collection[]
      */
-    public function searchCollections($SearchQuery, $SearchFlags = SEARCH_COLLECTIONS, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $RepositoryID = 0, $ClassificationID = 0, $LocationID = 0, $RangeValue = NULL, $Section = NULL, $Shelf = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchCollections($SearchQuery, $SearchFlags = SEARCH_COLLECTIONS, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $RepositoryID = 0, $ClassificationID = 0, $LocationID = 0, $RangeValue = NULL, $Section = NULL, $Shelf = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
 
         $arrPrepQueries = array();
         $arrCollections = array();
 
-        if (!($SearchFlags & SEARCH_COLLECTIONS)) {
+        if (!($SearchFlags & SEARCH_COLLECTIONS))
+        {
             return $arrCollections;
         }
 
-        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ)) {
+        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ))
+        {
             $SearchFlags &= ~ (SEARCH_DISABLED_COLLECTIONS | SEARCH_DISABLED_COLLECTIONCONTENT);
         }
 
 
         $enabledquery = " AND (";
-        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONS) {
+        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONS)
+        {
             $enabledquery .= "tblCollections_Collections.Enabled = '1'";
 
-            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONS) {
+            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONS)
+            {
                 $enabledquery .= " OR tblCollections_Collections.Enabled = '0'";
             }
-        } else {
+        }
+        else
+        {
             $enabledquery = "tblCollections_Collections.Enabled = '0'";
         }
         $enabledquery .= ")";
@@ -1691,11 +1950,14 @@ abstract class Collections_Archon {
 
         $repositorytypes = array();
         $repositoryvars = array();
-        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0) {
+        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0)
+        {
             $repositoryquery = " AND (tblCollections_Collections.RepositoryID = ?)";
             $repositorytypes = array('integer');
             $repositoryvars = array($RepositoryID);
-        } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+        }
+        elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+        {
             $repositoryquery = " AND RepositoryID IN (";
             $repositoryquery .= implode(', ', array_fill(0, count($RepositoryID), '?'));
             $repositoryquery .= ")";
@@ -1706,46 +1968,64 @@ abstract class Collections_Archon {
 
         $classificationtypes = array();
         $classificationvars = array();
-        if (is_natural($ClassificationID) && $ClassificationID > 0) {
+        if (is_natural($ClassificationID) && $ClassificationID > 0)
+        {
             $classificationquery = " AND tblCollections_Collections.ClassificationID = ?";
             $classificationtypes = array('integer');
             $classificationvars = array($ClassificationID);
         }
 
 
-        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0)) {
+        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0))
+        {
             $limitparams = array($Limit, $Offset);
-        } elseif (is_natural($Offset) && $Offset > 0) {
+        }
+        elseif (is_natural($Offset) && $Offset > 0)
+        {
             $limitparams = array(4294967295, $Offset);
-        } elseif (is_natural($Limit) && $Limit > 0) {
+        }
+        elseif (is_natural($Limit) && $Limit > 0)
+        {
             $limitparams = array($Limit);
-        } else {
+        }
+        else
+        {
             $limitparams = array(4294967295);
         }
-        if ($SubjectID && is_natural($SubjectID)) {
+        if ($SubjectID && is_natural($SubjectID))
+        {
             $arrIndexSearch['Subject'] = array($SubjectID => NULL);
-        } elseif ($CreatorID && is_natural($CreatorID)) {
+        }
+        elseif ($CreatorID && is_natural($CreatorID))
+        {
             $arrIndexSearch['Creator'] = array($CreatorID => NULL);
-        } elseif ($LanguageID && is_natural($LanguageID)) {
+        }
+        elseif ($LanguageID && is_natural($LanguageID))
+        {
             $arrIndexSearch['Language'] = array($LanguageID => NULL);
-        } elseif ($LocationID && is_natural($LocationID)) {
+        }
+        elseif ($LocationID && is_natural($LocationID))
+        {
             $query = "SELECT tblCollections_Collections.*, tblCollections_CollectionLocationIndex.Content as Content FROM tblCollections_Collections JOIN tblCollections_CollectionLocationIndex ON tblCollections_CollectionLocationIndex.CollectionID = tblCollections_Collections.ID WHERE tblCollections_CollectionLocationIndex.LocationID = ? $repositoryquery $enabledquery";
             $types = array_merge(array('integer'), $repositorytypes);
             $vars = array_merge(array($LocationID), $repositoryvars);
 
-            if (isset($RangeValue)) {
+            if (isset($RangeValue))
+            {
                 $query .= " AND RangeValue = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($RangeValue));
             }
 
-            if (isset($Section)) {
+            if (isset($Section))
+            {
                 $query .= " AND Section = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($Section));
             }
 
-            if (isset($Shelf)) {
+            if (isset($Shelf))
+            {
                 $query .= " AND Shelf = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($Shelf));
@@ -1755,7 +2035,9 @@ abstract class Collections_Archon {
             $prepQuery->types = $types;
             $prepQuery->vars = $vars;
             $arrPrepQueries[] = $prepQuery;
-        } else {
+        }
+        else
+        {
 
             $arrWords = $this->createSearchWordArray($SearchQuery);
             $textquery = '';
@@ -1766,58 +2048,64 @@ abstract class Collections_Archon {
             $subtypes = array();
             $subvars = array();
 
-            if (!empty($arrWords)) {
+            if (!empty($arrWords))
+            {
                 $i = 0;
-                foreach ($arrWords as $word) {
+                foreach ($arrWords as $word)
+                {
                     $i++;
-                    if ($word{0} == "-") {
+                    if ($word{0} == "-")
+                    {
                         $word = encoding_substr($word, 1, encoding_strlen($word) - 1);
                         $textquery .= "(Title NOT LIKE ? AND Scope NOT LIKE ?)";
                         array_push($texttypes, 'text', 'text');
                         array_push($textvars, "%$word%", "%$word%");
-                    } else {
+                    }
+                    else
+                    {
                         $textquery .= "(Title LIKE ? OR Scope LIKE ?)";
                         array_push($texttypes, 'text', 'text');
                         array_push($textvars, "%$word%", "%$word%");
                     }
 
-                    if ($i < count($arrWords)) {
+                    if ($i < count($arrWords))
+                    {
                         $textquery .= " AND ";
                     }
                 }
-            } else {
+            }
+            else
+            {
                 //$textquery = "Title LIKE '%%'";
                 $textquery = "1=1";
             }
-//            echo "1";
+
             // First we will try to parse the query for a Classification
             // string of the format #/#, where /# can be appended indefinitely
             // We'll try something easier than before.
             $ID = $this->getCollectionIDForNumber($SearchQuery);
-            if ($ID) {
-                $myqury .= " OR ID IN (" . $ID . ")";
-//                echo " 12,id=" . $ID;
-//                $subquery .= " OR ID = ?";
-//                $subtypes[] = 'integer';
-//                $subvars[] = $ID;
+            if ($ID)
+            {
+                $subquery .= " OR ID IN (" . $ID . ")"; //changes to get multiple records in case of partial search
             }
 
             // If our query is just a number, try to match it
             // directly to an ID from the Collections table.
-            if (is_natural($SearchQuery)) {
-//                echo " 12";
+            if (is_natural($SearchQuery))
+            {
                 $subquery .= " OR ID = ?";
                 $subtypes[] = 'integer';
                 $subvars[] = $SearchQuery;
             }
 
-            if ($textquery || $subquery || $repositoryquery || $enabledquery || $myqury) {
-//                echo " 13";
-                $wherequery = "WHERE ($textquery $subquery $myqury) $repositoryquery $classificationquery $enabledquery";
+            if ($textquery || $subquery || $repositoryquery || $enabledquery)
+            {
+                $wherequery = "WHERE ($textquery $subquery) $repositoryquery $classificationquery $enabledquery";
                 $wheretypes = array_merge($texttypes, $subtypes, $repositorytypes, $classificationtypes, $enabledtypes);
                 $wherevars = array_merge($textvars, $subvars, $repositoryvars, $classificationvars, $enabledvars);
-            } else {
-//                echo " 14";
+            }
+            else
+            {
                 $wherequery = '';
                 $wheretypes = array();
                 $wherevars = array();
@@ -1827,24 +2115,31 @@ abstract class Collections_Archon {
             $prepQuery->types = $wheretypes;
             $prepQuery->vars = $wherevars;
             $arrPrepQueries[] = $prepQuery;
-            if ($SearchFlags & SEARCH_SUBJECTS) {
+            if ($SearchFlags & SEARCH_SUBJECTS)
+            {
                 $arrIndexSearch['Subject'] = $this->searchSubjects($SearchQuery);
             }
 
-            if ($SearchFlags & SEARCH_CREATORS) {
+            if ($SearchFlags & SEARCH_CREATORS)
+            {
                 $arrIndexSearch['Creator'] = $this->searchCreators($SearchQuery);
             }
 
-            if ($SearchFlags & SEARCH_LANGUAGES) {
+            if ($SearchFlags & SEARCH_LANGUAGES)
+            {
                 $arrIndexSearch['Language'] = $this->searchLanguages($SearchQuery);
             }
         }
 
 
-        if (!empty($arrIndexSearch)) {
-            foreach ($arrIndexSearch as $Type => $arrObjects) {
-                if (!empty($arrObjects)) {
-                    foreach ($arrObjects as $ID => $junk) {
+        if (!empty($arrIndexSearch))
+        {
+            foreach ($arrIndexSearch as $Type => $arrObjects)
+            {
+                if (!empty($arrObjects))
+                {
+                    foreach ($arrObjects as $ID => $junk)
+                    {
                         $selectfields = "tblCollections_Collections.ID, tblCollections_Collections.Title, tblCollections_Collections.SortTitle, tblCollections_Collections.ClassificationID, tblCollections_Collections.InclusiveDates, tblCollections_Collections.CollectionIdentifier";
                         $prepQuery->query = "SELECT {$selectfields} FROM tblCollections_Collections JOIN {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")} ON {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")}.CollectionID = tblCollections_Collections.ID WHERE {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")}.{$this->mdb2->quoteIdentifier("{$Type}ID")} = ? $repositoryquery $enabledquery ORDER BY tblCollections_Collections.SortTitle, tblCollections_Collections.CollectionIdentifier";
                         $prepQuery->types = array_merge(array('integer'), $repositorytypes, $enabledtypes);
@@ -1857,32 +2152,39 @@ abstract class Collections_Archon {
             }
         }
 
-        foreach ($arrPrepQueries as $prepQuery) {
+        foreach ($arrPrepQueries as $prepQuery)
+        {
             // Run query to list collections
             call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
             $prep = $this->mdb2->prepare($prepQuery->query, $prepQuery->types, MDB2_PREPARE_RESULT);
-            if (PEAR::isError($prep)) {
+            if (PEAR::isError($prep))
+            {
                 echo($prepQuery->query);
                 trigger_error($prep->getMessage(), E_USER_ERROR);
             }
             $result = $prep->execute($prepQuery->vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            while ($row = $result->fetchRow()) {
-                if ($row['Content']) {
+            while ($row = $result->fetchRow())
+            {
+                if ($row['Content'])
+                {
                     $objContent = New CollectionContent(0);
                     $objContent->Title = $row['Content'];
 
                     unset($row['Content']);
                 }
 
-                if (!isset($arrCollections[$row['ID']])) {
+                if (!isset($arrCollections[$row['ID']]))
+                {
                     $arrCollections[$row['ID']] = New Collection($row);
                 }
 
-                if ($objContent) {
+                if ($objContent)
+                {
                     $arrCollections[$row['ID']]->Content[] = $objContent;
                 }
             }
@@ -1890,8 +2192,8 @@ abstract class Collections_Archon {
             $prep->free();
         }
 
-        if ($SearchFlags & SEARCH_COLLECTIONCONTENT) {
-//            echo " 21";
+        if ($SearchFlags & SEARCH_COLLECTIONCONTENT)
+        {
             $subquery = '';
             $subtypes = array();
             $subvars = array();
@@ -1903,14 +2205,16 @@ abstract class Collections_Archon {
 
             // If our query is just a number, try to match it
             // directly to an ID from the Collections table.
-            if (is_natural($SearchQuery)) {
+            if (is_natural($SearchQuery))
+            {
                 $subquery .= " OR tblCollections_Content.ID = '$SearchQuery'";
                 $subquery .= " OR tblCollections_Content.ID = ?";
                 $subtypes[] = 'integer';
                 $subvars[] = $SearchQuery;
             }
 
-            if (is_array($RepositoryID) || (is_natural($RepositoryID) && $RepositoryID > 0)) {
+            if (is_array($RepositoryID) || (is_natural($RepositoryID) && $RepositoryID > 0))
+            {
                 $subquery .= $repositoryquery;
                 $subtypes = array_merge($subtypes, $repositorytypes);
                 $subvars = array_merge($subvars, $repositoryvars);
@@ -1919,7 +2223,8 @@ abstract class Collections_Archon {
             $userfieldquery = '(1 = 0)';
             $userfieldtypes = array();
             $userfieldvars = array();
-            if ($SearchFlags & SEARCH_USERFIELDS) {
+            if ($SearchFlags & SEARCH_USERFIELDS)
+            {
                 $userfieldquery = str_replace("tblCollections_Content.Title ", "tblCollections_UserFields.Title ", $textquery);
                 $userfieldquery = str_replace("tblCollections_Content.Description ", "tblCollections_UserFields.Value ", $userfieldquery);
                 $userfieldtypes = $texttypes;
@@ -1934,15 +2239,18 @@ abstract class Collections_Archon {
             call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
             $prep = $this->mdb2->prepare($query, $types, MDB2_PREPARE_RESULT);
             $result = $prep->execute($vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            if ($result->numRows()) {
+            if ($result->numRows())
+            {
                 $arrLevelContainers = $this->getAllLevelContainers();
             }
 
-            while ($row = $result->fetchRow()) {
+            while ($row = $result->fetchRow())
+            {
                 $objContent = New CollectionContent($row);
                 $objContent->LevelContainer = $arrLevelContainers[$objContent->LevelContainerID];
 
@@ -1952,16 +2260,20 @@ abstract class Collections_Archon {
             $prep->free();
 
             // Now we need to sort the content and add it to the final object
-            if (!empty($arrContent)) {
+            if (!empty($arrContent))
+            {
                 natcaseksort($arrContent);
 
                 $collectionprep = $this->mdb2->prepare('SELECT * FROM tblCollections_Collections WHERE ID = ?', 'integer', MDB2_PREPARE_RESULT);
-                foreach ($arrContent as &$objContent) {
-                    if (!isset($arrCollections[$objContent->CollectionID])) {
+                foreach ($arrContent as &$objContent)
+                {
+                    if (!isset($arrCollections[$objContent->CollectionID]))
+                    {
                         // Calling the Collection dbLoad method will end up taking more time than just running the
                         // query to get the basic information
                         $collectionresult = $collectionprep->execute($objContent->CollectionID);
-                        if (PEAR::isError($collectionresult)) {
+                        if (PEAR::isError($collectionresult))
+                        {
                             trigger_error($collectionresult->getMessage(), E_USER_ERROR);
                         }
 
@@ -1981,26 +2293,33 @@ abstract class Collections_Archon {
         return $arrCollections;
     }
 
-    public function searchCollectionsByBook($SearchQuery, $SearchFlags = SEARCH_COLLECTIONS, $BookId = 0, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $RepositoryID = 0, $LocationID = 0, $RangeValue = NULL, $Section = NULL, $Shelf = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchCollectionsByBook($SearchQuery, $SearchFlags = SEARCH_COLLECTIONS, $BookId = 0, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $RepositoryID = 0, $LocationID = 0, $RangeValue = NULL, $Section = NULL, $Shelf = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
 
         $arrPrepQueries = array();
 
-        if (!($SearchFlags & SEARCH_COLLECTIONS)) {
+        if (!($SearchFlags & SEARCH_COLLECTIONS))
+        {
             return $arrCollections;
         }
 
-        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ)) {
+        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ))
+        {
             $SearchFlags &= ~ (SEARCH_DISABLED_COLLECTIONS | SEARCH_DISABLED_COLLECTIONCONTENT);
         }
 
         $enabledquery = " AND (";
-        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONS) {
+        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONS)
+        {
             $enabledquery .= "tblCollections_Collections.Enabled = '1'";
 
-            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONS) {
+            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONS)
+            {
                 $enabledquery .= " OR tblCollections_Collections.Enabled = '0'";
             }
-        } else {
+        }
+        else
+        {
             $enabledquery = "tblCollections_Collections.Enabled = '0'";
         }
         $enabledquery .= ")";
@@ -2009,11 +2328,14 @@ abstract class Collections_Archon {
 
         $repositorytypes = array();
         $repositoryvars = array();
-        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0) {
+        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0)
+        {
             $repositoryquery = " AND (tblCollections_Collections.RepositoryID = ?)";
             $repositorytypes = array('integer');
             $repositoryvars = array($RepositoryID);
-        } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+        }
+        elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+        {
             $repositoryquery = " AND RepositoryID IN (";
             $repositoryquery .= implode(', ', array_fill(0, count($RepositoryID), '?'));
             $repositoryquery .= ")";
@@ -2022,42 +2344,61 @@ abstract class Collections_Archon {
             $repositoryvars = $RepositoryID;
         }
 
-        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0)) {
+        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0))
+        {
             $limitparams = array($Limit, $Offset);
-        } elseif (is_natural($Offset) && $Offset > 0) {
+        }
+        elseif (is_natural($Offset) && $Offset > 0)
+        {
             $limitparams = array(4294967295, $Offset);
-        } elseif (is_natural($Limit) && $Limit > 0) {
+        }
+        elseif (is_natural($Limit) && $Limit > 0)
+        {
             $limitparams = array($Limit);
-        } else {
+        }
+        else
+        {
             $limitparams = array(4294967295);
         }
 
-        if ($SubjectID && is_natural($SubjectID)) {
+        if ($SubjectID && is_natural($SubjectID))
+        {
             $arrIndexSearch['Subject'] = array($SubjectID => NULL);
-        } elseif ($CreatorID && is_natural($CreatorID)) {
+        }
+        elseif ($CreatorID && is_natural($CreatorID))
+        {
             $arrIndexSearch['Creator'] = array($CreatorID => NULL);
-        } elseif ($BookID && is_natural($BookID)) {
+        }
+        elseif ($BookID && is_natural($BookID))
+        {
             $arrIndexSearch['Book'] = array($BookID => NULL);
-        } elseif ($LanguageID && is_natural($LanguageID)) {
+        }
+        elseif ($LanguageID && is_natural($LanguageID))
+        {
             $arrIndexSearch['Language'] = array($LanguageID => NULL);
-        } elseif ($LocationID && is_natural($LocationID)) {
+        }
+        elseif ($LocationID && is_natural($LocationID))
+        {
             $query = "SELECT tblCollections_Collections.*, tblCollections_CollectionLocationIndex.Content as Content FROM tblCollections_Collections JOIN tblCollections_CollectionLocationIndex ON tblCollections_CollectionLocationIndex.CollectionID = tblCollections_Collections.ID WHERE tblCollections_CollectionLocationIndex.LocationID = ? $repositoryquery $enabledquery";
             $types = array_merge(array('integer'), $repositoryTypes);
             $vars = array_merge(array($LocationID), $repositoryVars);
 
-            if (isset($RangeValue)) {
+            if (isset($RangeValue))
+            {
                 $query .= " AND RangeValue = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($RangeValue));
             }
 
-            if (isset($Section)) {
+            if (isset($Section))
+            {
                 $query .= " AND Section = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($Section));
             }
 
-            if (isset($Shelf)) {
+            if (isset($Shelf))
+            {
                 $query .= " AND Shelf = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($Shelf));
@@ -2067,7 +2408,9 @@ abstract class Collections_Archon {
             $prepQuery->types = $types;
             $prepQuery->vars = $vars;
             $arrPrepQueries[] = $prepQuery;
-        } else {
+        }
+        else
+        {
             $arrWords = $this->createSearchWordArray($SearchQuery);
             $textquery = '';
             $texttypes = array();
@@ -2077,26 +2420,34 @@ abstract class Collections_Archon {
             $subtypes = array();
             $subvars = array();
 
-            if (!empty($arrWords)) {
+            if (!empty($arrWords))
+            {
                 $i = 0;
-                foreach ($arrWords as $word) {
+                foreach ($arrWords as $word)
+                {
                     $i++;
-                    if ($word{0} == "-") {
+                    if ($word{0} == "-")
+                    {
                         $word = encoding_substr($word, 1, encoding_strlen($word) - 1);
                         $textquery .= "(Title NOT LIKE ? AND Scope NOT LIKE ?)";
                         array_push($texttypes, 'text', 'text');
                         array_push($textvars, "%$word%", "%$word%");
-                    } else {
+                    }
+                    else
+                    {
                         $textquery .= "(Title LIKE ? OR Scope LIKE ?)";
                         array_push($texttypes, 'text', 'text');
                         array_push($textvars, "%$word%", "%$word%");
                     }
 
-                    if ($i < count($arrWords)) {
+                    if ($i < count($arrWords))
+                    {
                         $textquery .= " AND ";
                     }
                 }
-            } else {
+            }
+            else
+            {
 //            $textquery = "Title LIKE '%%'";
                 $textquery = "1=1";
             }
@@ -2104,31 +2455,29 @@ abstract class Collections_Archon {
             // First we will try to parse the query for a Classification
             // string of the format #/#, where /# can be appended indefinitely
             // We'll try something easier than before.
-            $ID = $this->getCollectionIDForNumber($SearchQuery);
-            if ($ID) {
-                $myqury .= " OR ID IN (" . $ID . ")";
-//                echo " 12 id=" . $ID;
-//                $subquery .= " OR ID = ?";
-//                $subtypes[] = 'integer';
-//                $subvars[] = $ID;
+            $ID = $this->getCollectionIDForNumber($SearchQuery); 
+            if ($ID)
+            {
+                $subquery .= " OR ID IN (" . $ID . ")"; //changes to get multiple records in case of partial search
             }
 
             // If our query is just a number, try to match it
             // directly to an ID from the Collections table.
-            if (is_natural($SearchQuery)) {
-//                echo " 13";
+            if (is_natural($SearchQuery))
+            {
                 $subquery .= " OR ID = ?";
                 $subtypes[] = 'integer';
                 $subvars[] = $SearchQuery;
             }
 
-            if ($textquery || $subquery || $repositoryquery || $enabledquery || $myqury) {
-//                echo " 14";
-                $wherequery = "WHERE ($textquery $subquery $myqury) $repositoryquery $enabledquery";
+            if ($textquery || $subquery || $repositoryquery || $enabledquery)
+            {
+                $wherequery = "WHERE ($textquery $subquery) $repositoryquery $enabledquery";
                 $wheretypes = array_merge($texttypes, $subtypes, $repositorytypes, $enabledtypes);
                 $wherevars = array_merge($textvars, $subvars, $repositoryvars, $enabledvars);
-            } else {
-//                echo " 15";
+            }
+            else
+            {
                 $wherequery = '';
                 $wheretypes = array();
                 $wherevars = array();
@@ -2138,29 +2487,37 @@ abstract class Collections_Archon {
             $prepQuery->types = $wheretypes;
             $prepQuery->vars = $wherevars;
             $arrPrepQueries[] = $prepQuery;
-            
-            if ($SearchFlags & SEARCH_SUBJECTS) {
+
+            if ($SearchFlags & SEARCH_SUBJECTS)
+            {
                 $arrIndexSearch['Subject'] = $this->searchSubjects($SearchQuery);
             }
 
-            if ($SearchFlags & SEARCH_BOOKS) {
+            if ($SearchFlags & SEARCH_BOOKS)
+            {
                 $arrIndexSearch['Book'] = $this->searchBooks($SearchQuery);
             }
 
-            if ($SearchFlags & SEARCH_CREATORS) {
+            if ($SearchFlags & SEARCH_CREATORS)
+            {
                 $arrIndexSearch['Creator'] = $this->searchCreators($SearchQuery);
             }
 
-            if ($SearchFlags & SEARCH_LANGUAGES) {
+            if ($SearchFlags & SEARCH_LANGUAGES)
+            {
                 $arrIndexSearch['Language'] = $this->searchLanguages($SearchQuery);
             }
         }
 
 
-        if (!empty($arrIndexSearch)) {
-            foreach ($arrIndexSearch as $Type => $arrObjects) {
-                if (!empty($arrObjects)) {
-                    foreach ($arrObjects as $ID => $junk) {
+        if (!empty($arrIndexSearch))
+        {
+            foreach ($arrIndexSearch as $Type => $arrObjects)
+            {
+                if (!empty($arrObjects))
+                {
+                    foreach ($arrObjects as $ID => $junk)
+                    {
                         $prepQuery->query = "SELECT tblCollections_Collections.* FROM tblCollections_Collections JOIN {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")} ON {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")}.CollectionID = tblCollections_Collections.ID WHERE {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")}.{$this->mdb2->quoteIdentifier("{$Type}ID")} = ? $repositoryquery $enabledquery ORDER BY tblCollections_Collections.SortTitle, tblCollections_Collections.CollectionIdentifier";
                         $prepQuery->types = array_merge(array('integer'), $repositorytypes, $enabledtypes);
                         $prepQuery->vars = array_merge(array($ID), $repositoryvars, $enabledvars);
@@ -2172,28 +2529,34 @@ abstract class Collections_Archon {
             }
         }
 
-        foreach ($arrPrepQueries as $prepQuery) {
+        foreach ($arrPrepQueries as $prepQuery)
+        {
             // Run query to list collections
             call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
             $prep = $this->mdb2->prepare($prepQuery->query, $prepQuery->types, MDB2_PREPARE_RESULT);
             $result = $prep->execute($prepQuery->vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            while ($row = $result->fetchRow()) {
-                if ($row['Content']) {
+            while ($row = $result->fetchRow())
+            {
+                if ($row['Content'])
+                {
                     $objContent = New CollectionContent(0);
                     $objContent->Title = $row['Content'];
 
                     unset($row['Content']);
                 }
 
-                if (!isset($arrCollections[$row['ID']])) {
+                if (!isset($arrCollections[$row['ID']]))
+                {
                     $arrCollections[$row['ID']] = New Collection($row);
                 }
 
-                if ($objContent) {
+                if ($objContent)
+                {
                     $arrCollections[$row['ID']]->Content[] = $objContent;
                 }
             }
@@ -2201,7 +2564,8 @@ abstract class Collections_Archon {
             $prep->free();
         }
 
-        if ($SearchFlags & SEARCH_COLLECTIONCONTENT) {
+        if ($SearchFlags & SEARCH_COLLECTIONCONTENT)
+        {
             $subquery = '';
             $subtypes = array();
             $subvars = array();
@@ -2213,14 +2577,16 @@ abstract class Collections_Archon {
 
             // If our query is just a number, try to match it
             // directly to an ID from the Collections table.
-            if (is_natural($SearchQuery)) {
+            if (is_natural($SearchQuery))
+            {
                 $subquery .= " OR tblCollections_Content.ID = '$SearchQuery'";
                 $subquery .= " OR tblCollections_Content.ID = ?";
                 $subtypes[] = 'integer';
                 $subvars[] = $SearchQuery;
             }
 
-            if (is_array($RepositoryID) || (is_natural($RepositoryID) && $RepositoryID > 0)) {
+            if (is_array($RepositoryID) || (is_natural($RepositoryID) && $RepositoryID > 0))
+            {
                 $subquery .= $repositoryquery;
                 $subtypes = array_merge($subtypes, $repositorytypes);
                 $subvars = array_merge($subvars, $repositoryvars);
@@ -2229,7 +2595,8 @@ abstract class Collections_Archon {
             $userfieldquery = '(1 = 0)';
             $userfieldtypes = array();
             $userfieldvars = array();
-            if ($SearchFlags & SEARCH_USERFIELDS) {
+            if ($SearchFlags & SEARCH_USERFIELDS)
+            {
                 $userfieldquery = str_replace("tblCollections_Content.Title ", "tblCollections_UserFields.Title ", $textquery);
                 $userfieldquery = str_replace("tblCollections_Content.Description ", "tblCollections_UserFields.Value ", $userfieldquery);
                 $userfieldtypes = $texttypes;
@@ -2244,15 +2611,18 @@ abstract class Collections_Archon {
             call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
             $prep = $this->mdb2->prepare($query, $types, MDB2_PREPARE_RESULT);
             $result = $prep->execute($vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            if ($result->numRows()) {
+            if ($result->numRows())
+            {
                 $arrLevelContainers = $this->getAllLevelContainers();
             }
 
-            while ($row = $result->fetchRow()) {
+            while ($row = $result->fetchRow())
+            {
                 $objContent = New CollectionContent($row);
                 $objContent->LevelContainer = $arrLevelContainers[$objContent->LevelContainerID];
 
@@ -2262,16 +2632,20 @@ abstract class Collections_Archon {
             $prep->free();
 
             // Now we need to sort the content and add it to the final object
-            if (!empty($arrContent)) {
+            if (!empty($arrContent))
+            {
                 natcaseksort($arrContent);
 
                 $collectionprep = $this->mdb2->prepare('SELECT * FROM tblCollections_Collections WHERE ID = ?', 'integer', MDB2_PREPARE_RESULT);
-                foreach ($arrContent as &$objContent) {
-                    if (!isset($arrCollections[$objContent->CollectionID])) {
+                foreach ($arrContent as &$objContent)
+                {
+                    if (!isset($arrCollections[$objContent->CollectionID]))
+                    {
                         // Calling the Collection dbLoad method will end up taking more time than just running the
                         // query to get the basic information
                         $collectionresult = $collectionprep->execute($objContent->CollectionID);
-                        if (PEAR::isError($collectionresult)) {
+                        if (PEAR::isError($collectionresult))
+                        {
                             trigger_error($collectionresult->getMessage(), E_USER_ERROR);
                         }
 
@@ -2313,15 +2687,18 @@ abstract class Collections_Archon {
      * @param integer $Limit[optional]
      * @param integer $Offset[optional]
      */
-    public function searchCollectionsByClassification($SearchQuery, $SearchFlags = SEARCH_COLLECTIONS, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $RepositoryID = 0, $LocationID = 0, $RangeValue = NULL, $Section = NULL, $Shelf = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchCollectionsByClassification($SearchQuery, $SearchFlags = SEARCH_COLLECTIONS, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $RepositoryID = 0, $LocationID = 0, $RangeValue = NULL, $Section = NULL, $Shelf = NULL, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         $arrPrepQueries = array();
         $arrCollections = array();
 
-        if (!($SearchFlags & SEARCH_COLLECTIONS)) {
+        if (!($SearchFlags & SEARCH_COLLECTIONS))
+        {
             return $arrCollections;
         }
 
-        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ)) {
+        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONS, READ))
+        {
             $SearchFlags &= ~ (SEARCH_DISABLED_COLLECTIONS | SEARCH_DISABLED_COLLECTIONCONTENT);
         }
 
@@ -2329,13 +2706,17 @@ abstract class Collections_Archon {
         $arrClassifications = $this->getAllClassifications();
 
         $enabledquery = " AND (";
-        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONS) {
+        if ($SearchFlags & SEARCH_ENABLED_COLLECTIONS)
+        {
             $enabledquery .= "tblCollections_Collections.Enabled = '1'";
 
-            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONS) {
+            if ($SearchFlags & SEARCH_DISABLED_COLLECTIONS)
+            {
                 $enabledquery .= " OR tblCollections_Collections.Enabled = '0'";
             }
-        } else {
+        }
+        else
+        {
             $enabledquery = "tblCollections_Collections.Enabled = '0'";
         }
         $enabledquery .= ")";
@@ -2344,11 +2725,14 @@ abstract class Collections_Archon {
 
         $repositorytypes = array();
         $repositoryvars = array();
-        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0) {
+        if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0)
+        {
             $repositoryquery = " AND (tblCollections_Collections.RepositoryID = ?)";
             $repositorytypes = array('integer');
             $repositoryvars = array($RepositoryID);
-        } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+        }
+        elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+        {
             $repositoryquery = " AND RepositoryID IN (";
             $repositoryquery .= implode(', ', array_fill(0, count($RepositoryID), '?'));
             $repositoryquery .= ")";
@@ -2358,40 +2742,57 @@ abstract class Collections_Archon {
         }
 
 
-        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0)) {
+        if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0))
+        {
             $limitparams = array($Limit, $Offset);
-        } elseif (is_natural($Offset) && $Offset > 0) {
+        }
+        elseif (is_natural($Offset) && $Offset > 0)
+        {
             $limitparams = array(4294967295, $Offset);
-        } elseif (is_natural($Limit) && $Limit > 0) {
+        }
+        elseif (is_natural($Limit) && $Limit > 0)
+        {
             $limitparams = array($Limit);
-        } else {
+        }
+        else
+        {
             $limitparams = array(4294967295);
         }
 
-        if ($SubjectID && is_natural($SubjectID)) {
+        if ($SubjectID && is_natural($SubjectID))
+        {
             $arrIndexSearch['Subject'] = array($SubjectID => NULL);
-        } elseif ($CreatorID && is_natural($CreatorID)) {
+        }
+        elseif ($CreatorID && is_natural($CreatorID))
+        {
             $arrIndexSearch['Creator'] = array($CreatorID => NULL);
-        } elseif ($LanguageID && is_natural($LanguageID)) {
+        }
+        elseif ($LanguageID && is_natural($LanguageID))
+        {
             $arrIndexSearch['Language'] = array($LanguageID => NULL);
-        } elseif ($LocationID && is_natural($LocationID)) {
+        }
+        elseif ($LocationID && is_natural($LocationID))
+        {
             $query = "SELECT tblCollections_Collections.*, tblCollections_CollectionLocationIndex.Content as Content FROM tblCollections_Collections JOIN tblCollections_CollectionLocationIndex ON tblCollections_CollectionLocationIndex.CollectionID = tblCollections_Collections.ID WHERE tblCollections_CollectionLocationIndex.LocationID = ? $repositoryquery $enabledquery";
             $types = array_merge(array('integer'), $repositorytypes);
             $vars = array_merge(array($LocationID), $repositoryvars);
 
-            if (isset($RangeValue)) {
+            if (isset($RangeValue))
+            {
                 $query .= " AND RangeValue = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($RangeValue));
             }
 
-            if (isset($Section)) {
+            if (isset($Section))
+            {
                 $query .= " AND Section = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($Section));
             }
 
-            if (isset($Shelf)) {
+            if (isset($Shelf))
+            {
                 $query .= " AND Shelf = ?";
                 $types = array_merge($types, array('text'));
                 $vars = array_merge($vars, array($Shelf));
@@ -2401,7 +2802,9 @@ abstract class Collections_Archon {
             $prepQuery->types = $types;
             $prepQuery->vars = $vars;
             $arrPrepQueries[] = $prepQuery;
-        } else {
+        }
+        else
+        {
             $arrWords = $this->createSearchWordArray($SearchQuery);
             $textquery = '';
             $texttypes = array();
@@ -2411,26 +2814,34 @@ abstract class Collections_Archon {
             $subtypes = array();
             $subvars = array();
 
-            if (!empty($arrWords)) {
+            if (!empty($arrWords))
+            {
                 $i = 0;
-                foreach ($arrWords as $word) {
+                foreach ($arrWords as $word)
+                {
                     $i++;
-                    if ($word{0} == "-") {
+                    if ($word{0} == "-")
+                    {
                         $word = encoding_substr($word, 1, encoding_strlen($word) - 1);
                         $textquery .= "(Title NOT LIKE ? AND Scope NOT LIKE ?)";
                         array_push($texttypes, 'text', 'text');
                         array_push($textvars, "%$word%", "%$word%");
-                    } else {
+                    }
+                    else
+                    {
                         $textquery .= "(Title LIKE ? OR Scope LIKE ?)";
                         array_push($texttypes, 'text', 'text');
                         array_push($textvars, "%$word%", "%$word%");
                     }
 
-                    if ($i < count($arrWords)) {
+                    if ($i < count($arrWords))
+                    {
                         $textquery .= " AND ";
                     }
                 }
-            } else {
+            }
+            else
+            {
 //            $textquery = "Title LIKE '%%'";
                 $textquery = "1=1";
             }
@@ -2439,26 +2850,28 @@ abstract class Collections_Archon {
             // string of the format #/#, where /# can be appended indefinitely
             // We'll try something easier than before.
             $ID = $this->getCollectionIDForNumber($SearchQuery);
-            if ($ID) {
-                $myqury .= " OR ID IN (" . $ID . ")";
-//                $subquery .= " OR ID = ?";
-//                $subtypes[] = 'integer';
-//                $subvars[] = $ID;
+            if ($ID)
+            {
+                $subquery .= " OR ID IN (" . $ID . ")"; //changes to get multiple records in case of partial search
             }
 
             // If our query is just a number, try to match it
             // directly to an ID from the Collections table.
-            if (is_natural($SearchQuery)) {
+            if (is_natural($SearchQuery))
+            {
                 $subquery .= " OR ID = ?";
                 $subtypes[] = 'integer';
                 $subvars[] = $SearchQuery;
             }
 
-            if ($textquery || $subquery || $repositoryquery || $enabledquery || $myqury) {
-                $wherequery = "WHERE ($textquery $subquery $myqury) $repositoryquery $enabledquery";
+            if ($textquery || $subquery || $repositoryquery || $enabledquery)
+            {
+                $wherequery = "WHERE ($textquery $subquery) $repositoryquery $enabledquery";
                 $wheretypes = array_merge($texttypes, $subtypes, $repositorytypes, $enabledtypes);
                 $wherevars = array_merge($textvars, $subvars, $repositoryvars, $enabledvars);
-            } else {
+            }
+            else
+            {
                 $wherequery = '';
                 $wheretypes = array();
                 $wherevars = array();
@@ -2469,24 +2882,31 @@ abstract class Collections_Archon {
             $prepQuery->vars = $wherevars;
             $arrPrepQueries[] = $prepQuery;
 
-            if ($SearchFlags & SEARCH_SUBJECTS) {
+            if ($SearchFlags & SEARCH_SUBJECTS)
+            {
                 $arrIndexSearch['Subject'] = $this->searchSubjects($SearchQuery);
             }
 
-            if ($SearchFlags & SEARCH_CREATORS) {
+            if ($SearchFlags & SEARCH_CREATORS)
+            {
                 $arrIndexSearch['Creator'] = $this->searchCreators($SearchQuery);
             }
 
-            if ($SearchFlags & SEARCH_LANGUAGES) {
+            if ($SearchFlags & SEARCH_LANGUAGES)
+            {
                 $arrIndexSearch['Language'] = $this->searchLanguages($SearchQuery);
             }
         }
 
 
-        if (!empty($arrIndexSearch)) {
-            foreach ($arrIndexSearch as $Type => $arrObjects) {
-                if (!empty($arrObjects)) {
-                    foreach ($arrObjects as $ID => $junk) {
+        if (!empty($arrIndexSearch))
+        {
+            foreach ($arrIndexSearch as $Type => $arrObjects)
+            {
+                if (!empty($arrObjects))
+                {
+                    foreach ($arrObjects as $ID => $junk)
+                    {
                         $prepQuery->query = "SELECT tblCollections_Collections.* FROM tblCollections_Collections JOIN {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")} ON {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")}.CollectionID = tblCollections_Collections.ID WHERE {$this->mdb2->quoteIdentifier("tblCollections_Collection{$Type}Index")}.{$this->mdb2->quoteIdentifier("{$Type}ID")} = ? $repositoryquery $enabledquery ORDER BY tblCollections_Collections.CollectionIdentifier, tblCollections_Collections.SortTitle";
                         $prepQuery->types = array_merge(array('integer'), $repositorytypes, $enabledtypes);
                         $prepQuery->vars = array_merge(array($ID), $repositoryvars, $enabledvars);
@@ -2499,28 +2919,34 @@ abstract class Collections_Archon {
         }
 
 
-        foreach ($arrPrepQueries as $prepQuery) {
+        foreach ($arrPrepQueries as $prepQuery)
+        {
             // Run query to list collections
             call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
             $prep = $this->mdb2->prepare($prepQuery->query, $prepQuery->types, MDB2_PREPARE_RESULT);
             $result = $prep->execute($prepQuery->vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            while ($row = $result->fetchRow()) {
-                if ($row['Content']) {
+            while ($row = $result->fetchRow())
+            {
+                if ($row['Content'])
+                {
                     $objContent = New CollectionContent(0);
                     $objContent->Title = $row['Content'];
 
                     unset($row['Content']);
                 }
 
-                if (!isset($arrClassifications[$row['ClassificationID']]->Collections[$row['ID']])) {
+                if (!isset($arrClassifications[$row['ClassificationID']]->Collections[$row['ID']]))
+                {
                     $arrClassifications[$row['ClassificationID']]->Collections[$row['ID']] = New Collection($row);
                 }
 
-                if ($objContent) {
+                if ($objContent)
+                {
                     $arrClassifications[$row['ClassificationID']]->Collections[$row['ID']]->Content[] = $objContent;
                 }
 
@@ -2529,7 +2955,8 @@ abstract class Collections_Archon {
                 // because we want to make sure we don't remove parents that have children with Collections
                 // (which may not contain any Collections).
                 $ID = $arrClassifications[$row['ClassificationID']]->ID;
-                while ($ID) {
+                while ($ID)
+                {
                     $arrClassifications[$ID]->_ContainsCollections = true;
                     $ID = $arrClassifications[$ID]->ParentID;
                 }
@@ -2538,7 +2965,8 @@ abstract class Collections_Archon {
             $prep->free();
         }
 
-        if ($SearchFlags & SEARCH_COLLECTIONCONTENT) {
+        if ($SearchFlags & SEARCH_COLLECTIONCONTENT)
+        {
             $subquery = '';
             $subtypes = array();
             $subvars = array();
@@ -2550,14 +2978,16 @@ abstract class Collections_Archon {
 
             // If our query is just a number, try to match it
             // directly to an ID from the Collections table.
-            if (is_natural($SearchQuery)) {
+            if (is_natural($SearchQuery))
+            {
                 $subquery .= " OR tblCollections_Content.ID = '$SearchQuery'";
                 $subquery .= " OR tblCollections_Content.ID = ?";
                 $subtypes[] = 'integer';
                 $subvars[] = $SearchQuery;
             }
 
-            if (is_array($RepositoryID) || (is_natural($RepositoryID) && $RepositoryID > 0)) {
+            if (is_array($RepositoryID) || (is_natural($RepositoryID) && $RepositoryID > 0))
+            {
                 $subquery .= $repositoryquery;
                 $subtypes = array_merge($subtypes, $repositorytypes);
                 $subvars = array_merge($subvars, $repositoryvars);
@@ -2566,7 +2996,8 @@ abstract class Collections_Archon {
             $userfieldquery = '(1 = 0)';
             $userfieldtypes = array();
             $userfieldvars = array();
-            if ($SearchFlags & SEARCH_USERFIELDS) {
+            if ($SearchFlags & SEARCH_USERFIELDS)
+            {
                 $userfieldquery = str_replace("tblCollections_Content.Title ", "tblCollections_UserFields.Title ", $textquery);
                 $userfieldquery = str_replace("tblCollections_Content.Description ", "tblCollections_UserFields.Value ", $userfieldquery);
                 $userfieldtypes = $texttypes;
@@ -2581,23 +3012,29 @@ abstract class Collections_Archon {
             call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
             $prep = $this->mdb2->prepare($query, $types, MDB2_PREPARE_RESULT);
             $result = $prep->execute($vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            if ($result->numRows()) {
+            if ($result->numRows())
+            {
                 $arrLevelContainers = $this->getAllLevelContainers();
             }
 
             $collectionprep = $this->mdb2->prepare('SELECT * FROM tblCollections_Collections WHERE ID = ?', 'integer', MDB2_PREPARE_RESULT);
-            while ($row = $result->fetchRow()) {
-                if (!isset($arrClassifications[$row['ClassificationID']]->Collections[$row['CollectionID']])) {
+            while ($row = $result->fetchRow())
+            {
+                if (!isset($arrClassifications[$row['ClassificationID']]->Collections[$row['CollectionID']]))
+                {
                     // See if we can skip grabbing information about the collections.
-                    if (!$arrClassifications[$row['ClassificationID']]->Collections[$row['CollectionID']]) {
+                    if (!$arrClassifications[$row['ClassificationID']]->Collections[$row['CollectionID']])
+                    {
                         // Calling the Collection dbLoad method will end up taking more time than just running the
                         // query to get the basic information
                         $collectionresult = $collectionprep->execute($row['CollectionID']);
-                        if (PEAR::isError($result)) {
+                        if (PEAR::isError($result))
+                        {
                             trigger_error($result->getMessage(), E_USER_ERROR);
                         }
                         $collectionrow = $collectionresult->fetchRow();
@@ -2610,7 +3047,8 @@ abstract class Collections_Archon {
                         // because we want to make sure we don't remove parents that have children with Collections
                         // (which may not contain any Collections).
                         $ID = $arrClassifications[$row['ClassificationID']]->ID;
-                        while ($ID) {
+                        while ($ID)
+                        {
                             $arrClassifications[$ID]->_ContainsCollections = true;
                             $ID = $arrClassifications[$ID]->ParentID;
                         }
@@ -2639,21 +3077,26 @@ abstract class Collections_Archon {
             $prep->free();
 
             // Now we need to sort the content and add it to the final object
-            if (!empty($arrContent)) {
+            if (!empty($arrContent))
+            {
                 natcaseksort($arrContent);
 
-                foreach ($arrContent as $objContent) {
+                foreach ($arrContent as $objContent)
+                {
                     $arrClassifications[$objContent->ClassificationID]->Collections[$objContent->CollectionID]->Content[$objContent->ID] = $objContent;
                 }
             }
         }
 
         // Remove any classifications that didn't get a hit
-        foreach ($arrClassifications as $objClassification) {
-            if (!$objClassification->_ContainsCollections) {
+        foreach ($arrClassifications as $objClassification)
+        {
+            if (!$objClassification->_ContainsCollections)
+            {
                 unset($arrClassifications[$objClassification->ID]);
 
-                if ($objClassification->ParentID && $arrClassifications[$objClassification->ParentID]) {
+                if ($objClassification->ParentID && $arrClassifications[$objClassification->ParentID])
+                {
                     unset($arrClassifications[$objClassification->ParentID]->Classifications[$objClassification->ID]);
                 }
 
@@ -2674,7 +3117,8 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return ExtentUnit[]
      */
-    public function searchExtentUnits($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchExtentUnits($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         return $this->searchTable($SearchQuery, 'tblCollections_ExtentUnits', 'ExtentUnit', 'ExtentUnit', 'ExtentUnit', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
     }
 
@@ -2686,7 +3130,8 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return LevelContainer[]
      */
-    public function searchLevelContainers($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchLevelContainers($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         return $this->searchTable($SearchQuery, 'tblCollections_LevelContainers', 'LevelContainer', 'LevelContainer', 'LevelContainer', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
     }
 
@@ -2698,11 +3143,15 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return Location[]
      */
-    public function searchLocations($SearchQuery, $RepositoryID = 0, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchLocations($SearchQuery, $RepositoryID = 0, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
 
-        if (!$RepositoryID || (!is_array($RepositoryID) && !is_natural($RepositoryID)) || empty($RepositoryID)) {
+        if (!$RepositoryID || (!is_array($RepositoryID) && !is_natural($RepositoryID)) || empty($RepositoryID))
+        {
             return $this->searchTable($SearchQuery, 'tblCollections_Locations', 'Location', 'Location', 'Location', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
-        } else {
+        }
+        else
+        {
 
             $arrObjects = $this->searchTable($SearchQuery, 'tblCollections_Locations', 'Location', 'Location', 'Location', 'RepositoryLimit = ?', array('integer'), array('0'), NULL, array(), array(), $Limit, $Offset);
 
@@ -2712,10 +3161,13 @@ abstract class Collections_Archon {
             $wheretypes = array();
             $wherevars = array();
 
-            if (!empty($arrWords)) {
-                foreach ($arrWords as $word) {
+            if (!empty($arrWords))
+            {
+                foreach ($arrWords as $word)
+                {
                     $i++;
-                    if ($word{0} == '-') {
+                    if ($word{0} == '-')
+                    {
                         $word = encoding_substr($word, 1, encoding_strlen($word) - 1);
                         $wherequery .= '(';
 
@@ -2726,7 +3178,9 @@ abstract class Collections_Archon {
 
 
                         $wherequery .= ')';
-                    } else {
+                    }
+                    else
+                    {
                         $wherequery .= '(';
                         $wherequery .= "tblCollections_Locations.Location LIKE ?";
                         $wheretypes[] = 'text';
@@ -2735,42 +3189,55 @@ abstract class Collections_Archon {
                         $wherequery .= ')';
                     }
 
-                    if ($i < count($arrWords)) {
+                    if ($i < count($arrWords))
+                    {
                         $wherequery .= " AND ";
                     }
                 }
             }
 
-            if (!$wherequery) {
+            if (!$wherequery)
+            {
                 $wherequery = '1 = 1';
             }
 
             // If our query is just a number, try to match it
             // directly to an ID from the table.
-            if (is_natural($SearchQuery) && $SearchQuery > 0) {
+            if (is_natural($SearchQuery) && $SearchQuery > 0)
+            {
                 $wherequery .= " OR tblCollections_Locations.ID = ?";
                 $wheretypes[] = 'integer';
                 $wherevars[] = $SearchQuery;
             }
 
-            if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0)) {
+            if ((is_natural($Offset) && $Offset > 0) && (is_natural($Limit) && $Limit > 0))
+            {
                 $limitparams = array($Limit, $Offset);
-            } elseif (is_natural($Offset) && $Offset > 0) {
+            }
+            elseif (is_natural($Offset) && $Offset > 0)
+            {
                 $limitparams = array(4294967295, $Offset);
-            } elseif (is_natural($Limit) && $Limit > 0) {
+            }
+            elseif (is_natural($Limit) && $Limit > 0)
+            {
                 $limitparams = array($Limit);
-            } else {
+            }
+            else
+            {
                 $limitparams = array(4294967295);
             }
 
             $wherequery = "WHERE (tblCollections_Locations.RepositoryLimit = 1) AND ({$wherequery})";
 
             //TODO:
-            if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0) {
+            if (!is_array($RepositoryID) && is_natural($RepositoryID) && $RepositoryID > 0)
+            {
                 $wherequery .= " AND (RepositoryID = ?)";
                 $wheretypes[] = 'integer';
                 $wherevars[] = $RepositoryID;
-            } elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID)) {
+            }
+            elseif ($RepositoryID && is_array($RepositoryID) && !empty($RepositoryID))
+            {
                 $wherequery .= " AND RepositoryID IN (";
                 $wherequery .= implode(', ', array_fill(0, count($RepositoryID), '?'));
                 $wherequery .= ")";
@@ -2790,18 +3257,21 @@ abstract class Collections_Archon {
 
             call_user_func_array(array($this->mdb2, 'setLimit'), $limitparams);
             $prep = $this->mdb2->prepare($query, $wheretypes, MDB2_PREPARE_RESULT);
-            if (PEAR::isError($prep)) {
+            if (PEAR::isError($prep))
+            {
                 echo($query);
                 print_r($wheretypes);
                 print_r($wherevars);
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
             $result = $prep->execute($wherevars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            while ($row = $result->fetchRow()) {
+            while ($row = $result->fetchRow())
+            {
                 $arrObjects[$row['ID']] = New Location($row);
             }
             $result->free();
@@ -2821,7 +3291,8 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return MaterialType[]
      */
-    public function searchMaterialTypes($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchMaterialTypes($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         return $this->searchTable($SearchQuery, 'tblCollections_MaterialTypes', 'MaterialType', 'MaterialType', 'MaterialType', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
     }
 
@@ -2833,7 +3304,8 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return ResearchAppointmentField[]
      */
-    public function searchResearchAppointmentFields($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchResearchAppointmentFields($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         return $this->searchTable($SearchQuery, 'tblCollections_ResearchAppointmentFields', 'Name', 'ResearchAppointmentField', 'DisplayOrder, Name', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
     }
 
@@ -2845,7 +3317,8 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return ResearchAppointmentPurpose[]
      */
-    public function searchResearchAppointmentPurposes($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchResearchAppointmentPurposes($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         return $this->searchTable($SearchQuery, 'tblCollections_ResearchAppointmentPurposes', 'ResearchAppointmentPurpose', 'ResearchAppointmentPurpose', 'ResearchAppointmentPurpose', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
     }
 
@@ -2857,7 +3330,8 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return ResearcherType[]
      */
-    public function searchResearcherTypes($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchResearcherTypes($SearchQuery, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
         return $this->searchTable($SearchQuery, 'tblCollections_ResearcherTypes', 'ResearcherType', 'ResearcherType', 'ResearcherType', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
     }
 
@@ -2869,22 +3343,34 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return Book[]
      */
-    public function searchBooks($SearchQuery, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
+    public function searchBooks($SearchQuery, $SubjectID = 0, $CreatorID = 0, $LanguageID = 0, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
 
-        if ($SubjectID && is_natural($SubjectID)) {
+        if ($SubjectID && is_natural($SubjectID))
+        {
             $arrIndexSearch['Subject'] = array($SubjectID => NULL);
-        } elseif ($CreatorID && is_natural($CreatorID)) {
+        }
+        elseif ($CreatorID && is_natural($CreatorID))
+        {
             $arrIndexSearch['Creator'] = array($CreatorID => NULL);
-        } elseif ($LanguageID && is_natural($LanguageID)) {
+        }
+        elseif ($LanguageID && is_natural($LanguageID))
+        {
             $arrIndexSearch['Language'] = array($LanguageID => NULL);
-        } else {
+        }
+        else
+        {
             return $this->searchTable($SearchQuery, 'tblCollections_Books', array('Title', 'Description', 'Notes'), 'Book', 'Title', NULL, array(), array(), NULL, array(), array(), $Limit, $Offset);
         }
 
-        if (!empty($arrIndexSearch)) {
-            foreach ($arrIndexSearch as $Type => $arrObjects) {
-                if (!empty($arrObjects)) {
-                    foreach ($arrObjects as $ID => $junk) {
+        if (!empty($arrIndexSearch))
+        {
+            foreach ($arrIndexSearch as $Type => $arrObjects)
+            {
+                if (!empty($arrObjects))
+                {
+                    foreach ($arrObjects as $ID => $junk)
+                    {
                         $prepQuery->query = "SELECT * FROM tblCollections_Books JOIN {$this->mdb2->quoteIdentifier("tblCollections_Book{$Type}Index")} ON {$this->mdb2->quoteIdentifier("tblCollections_Book{$Type}Index")}.BookID = tblCollections_Books.ID WHERE {$this->mdb2->quoteIdentifier("tblCollections_Book{$Type}Index")}.{$this->mdb2->quoteIdentifier("{$Type}ID")} = ?  ORDER BY tblCollections_Books.Title";
                         $prepQuery->types = array('integer');
                         $prepQuery->vars = array($ID);
@@ -2894,20 +3380,24 @@ abstract class Collections_Archon {
             }
         }
 
-        foreach ($arrPrepQueries as $prepQuery) {
+        foreach ($arrPrepQueries as $prepQuery)
+        {
             // Run query to list collections
             call_user_func(array($this->mdb2, 'setLimit'), $Limit);
             $prep = $this->mdb2->prepare($prepQuery->query, $prepQuery->types, MDB2_PREPARE_RESULT);
-            if (PEAR::isError($prep)) {
+            if (PEAR::isError($prep))
+            {
                 echo($prepQuery->query);
                 trigger_error($prep->getMessage(), E_USER_ERROR);
             }
             $result = $prep->execute($prepQuery->vars);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
 
-            while ($row = $result->fetchRow()) {
+            while ($row = $result->fetchRow())
+            {
                 $arrResults[$row['ID']] = New Book($row);
             }
             $result->free();
@@ -2927,23 +3417,28 @@ abstract class Collections_Archon {
      * @param integer $ShiftAmount
      * @return boolean
      */
-    public function shiftLevelContainerIdentifiers($arrIDs, $ShiftDirection, $ShiftAmount, $ShiftSortOrder = false) {
-        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONCONTENT, UPDATE)) {
+    public function shiftLevelContainerIdentifiers($arrIDs, $ShiftDirection, $ShiftAmount, $ShiftSortOrder = false)
+    {
+        if (!$this->Security->verifyPermissions(MODULE_COLLECTIONCONTENT, UPDATE))
+        {
             $this->declareError("Could not renumber: Permission Denied.");
             return false;
         }
 
-        if (!is_array($arrIDs) || empty($arrIDs) || $arrIDs == array('0')) {
+        if (!is_array($arrIDs) || empty($arrIDs) || $arrIDs == array('0'))
+        {
             $this->declareError("Could not renumber: Invalid IDs specified.");
             return false;
         }
 
-        if (!is_numeric($ShiftAmount)) {
+        if (!is_numeric($ShiftAmount))
+        {
             $this->declareError("Could not renumber: ShiftAmount must be numeric.");
             return false;
         }
 
-        if ($ShiftDirection != UP && $ShiftDirection != DOWN) {
+        if ($ShiftDirection != UP && $ShiftDirection != DOWN)
+        {
             $this->declareError("Could not renumber: Invalid ShiftDirection.");
             return false;
         }
@@ -2951,7 +3446,8 @@ abstract class Collections_Archon {
         //build array of ID => LevelContainerIdentifier
         $arrLCIDs = array();
         static $getPrep = NULL;
-        if (!isset($getPrep)) {
+        if (!isset($getPrep))
+        {
             $query = 'SELECT LevelContainerID,LevelContainerIdentifier,ParentID,CollectionID FROM tblCollections_Content WHERE ID = ?';
             $getPrep = $this->mdb2->prepare($query, 'integer', MDB2_PREPARE_RESULT);
         }
@@ -2960,13 +3456,16 @@ abstract class Collections_Archon {
         $LevelContainerID = NULL;
         $ParentID = NULL;
         $CollectionID = NULL;
-        foreach ($arrIDs as $ID) {
+        foreach ($arrIDs as $ID)
+        {
             $this->mdb2->setLimit(1);
             $result = $getPrep->execute($ID);
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
-            if (!$result->numRows()) {
+            if (!$result->numRows())
+            {
                 $result->free();
 
                 $this->declareError("Could not renumber: Invalid LevelContainerIdentifier.");
@@ -2979,17 +3478,22 @@ abstract class Collections_Archon {
             $collectionID = $row['CollectionID'];
             $result->free();
 
-            if (!is_numeric($LCID)) {
+            if (!is_numeric($LCID))
+            {
                 $this->declareError("Could not renumber: LevelContainerIdentifiers must be numeric.");
                 return false;
             }
 
-            if (!$firstTime) {
-                if ($LevelContainerID != $levelContainerID || $ParentID != $parentID || $CollectionID != $collectionID) {
+            if (!$firstTime)
+            {
+                if ($LevelContainerID != $levelContainerID || $ParentID != $parentID || $CollectionID != $collectionID)
+                {
                     $this->declareError("Could not renumber: Content must have same Parent Collection, Parent Content and Level Container.");
                     return false;
                 }
-            } else {
+            }
+            else
+            {
                 $LevelContainerID = $levelContainerID;
                 $ParentID = $parentID;
                 $CollectionID = $collectionID;
@@ -3003,26 +3507,32 @@ abstract class Collections_Archon {
 
         // Check for conflicts
         static $checkPrep = NULL;
-        if (!isset($checkPrep)) {
+        if (!isset($checkPrep))
+        {
             $query = "SELECT ID FROM tblCollections_Content WHERE LevelContainerID = ? AND LevelContainerIdentifier = ? AND ParentID = ? AND CollectionID = ?";
             $checkPrep = $this->mdb2->prepare($query, array('integer', 'text', 'integer', 'integer'), MDB2_PREPARE_RESULT);
         }
 
-        foreach ($arrLCIDs as $ID => $LCID) {
+        foreach ($arrLCIDs as $ID => $LCID)
+        {
             $arrLCIDs[$ID] = $ShiftDirection == UP ? $LCID + $ShiftAmount : $LCID - $ShiftAmount;
 
-            if ($arrLCIDs[$ID] <= 0) {
+            if ($arrLCIDs[$ID] <= 0)
+            {
                 $this->declareError("Could not renumber: LevelContainerIdentifiers must be positive.");
                 return false;
             }
 
             $result = $checkPrep->execute(array($LevelContainerID, $arrLCIDs[$ID], $ParentID, $CollectionID));
-            if (PEAR::isError($result)) {
+            if (PEAR::isError($result))
+            {
                 trigger_error($result->getMessage(), E_USER_ERROR);
             }
-            while ($row = $result->fetchRow()) {
+            while ($row = $result->fetchRow())
+            {
                 // conflicts within the content we're renumbering are expected
-                if (!isset($arrLCIDs[$row['ID']])) {
+                if (!isset($arrLCIDs[$row['ID']]))
+                {
                     $this->declareError("Could not renumber: A CollectionContent with the same ContainerTypeAndNumberAndParentAndCollection already exists in the database. LevelContainerIdentifier: " . $arrLCIDs[$ID]);
                     return false;
                 }
@@ -3031,7 +3541,8 @@ abstract class Collections_Archon {
         }
 
         // Final uniqueness check amongst content after everything is renumbered
-        if (count($arrLCIDs) != count(array_unique($arrLCIDs))) {
+        if (count($arrLCIDs) != count(array_unique($arrLCIDs)))
+        {
             $this->declareError("Could not renumber: Renumbering will result in duplicate LevelContainerIdentifiers.");
             return false;
         }
@@ -3039,32 +3550,40 @@ abstract class Collections_Archon {
 
         // Renumber Content
         static $updatePrep = NULL;
-        if (!isset($updatePrep)) {
+        if (!isset($updatePrep))
+        {
             $query = "UPDATE tblCollections_Content SET LevelContainerIdentifier = ? WHERE ID = ?";
             $updatePrep = $this->mdb2->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
         }
-        foreach ($arrLCIDs as $ID => $LCID) {
+        foreach ($arrLCIDs as $ID => $LCID)
+        {
 
             $affected = $updatePrep->execute(array($LCID, $ID));
-            if (PEAR::isError($affected)) {
+            if (PEAR::isError($affected))
+            {
                 trigger_error($affected->getMessage(), E_USER_ERROR);
             }
         }
 
 
-        foreach ($arrLCIDs as $ID => $LCID) {
-            if ($ShiftSortOrder) {
+        foreach ($arrLCIDs as $ID => $LCID)
+        {
+            if ($ShiftSortOrder)
+            {
 
                 $objContent = New CollectionContent($ID);
                 $objContent->dbLoad(false);
 
                 $objContent->SortOrder = $ShiftDirection == UP ? $objContent->SortOrder + $ShiftAmount : $objContent->SortOrder - $ShiftAmount;
 
-                if (!$objContent->dbStore()) {
+                if (!$objContent->dbStore())
+                {
                     return false;
                 }
                 unset($objContent);
-            } else {
+            }
+            else
+            {
                 //this would be logged by the dbStore otherwise
                 $this->log("tblCollections_Content", $ID);
             }
@@ -3082,8 +3601,10 @@ abstract class Collections_Archon {
      * @param integer $ID
      * @return Classification[]
      */
-    public function traverseClassification($ClassificationID) {
-        if (!$ClassificationID) {
+    public function traverseClassification($ClassificationID)
+    {
+        if (!$ClassificationID)
+        {
             $this->declareError("Could not traverse Classification: Classification ID not defined.");
             return false;
         }
@@ -3092,7 +3613,8 @@ abstract class Collections_Archon {
         $objClassification->dbLoad();
         $arrClassification[$objClassification->ID] = $objClassification;
 
-        while ($objClassification->ParentID) {
+        while ($objClassification->ParentID)
+        {
             $objClassification = New Classification($objClassification->ParentID);
             $objClassification->dbLoad();
             $arrClassification[$objClassification->ID] = $objClassification;
@@ -3107,8 +3629,10 @@ abstract class Collections_Archon {
      * @param integer $ID
      * @return CollectionContent[]
      */
-    public function traverseCollectionContent($CollectionContentID) {
-        if (!$CollectionContentID) {
+    public function traverseCollectionContent($CollectionContentID)
+    {
+        if (!$CollectionContentID)
+        {
             $this->declareError("Could not traverse CollectionContent: CollectionContent ID not defined.");
             return false;
         }
@@ -3117,7 +3641,8 @@ abstract class Collections_Archon {
         $objContent->dbLoad();
         $arrContent[$objContent->ID] = $objContent;
 
-        while ($objContent->ParentID) {
+        while ($objContent->ParentID)
+        {
             $objContent = New CollectionContent($objContent->ParentID);
             $objContent->dbLoad();
             $arrContent[$objContent->ID] = $objContent;
@@ -3129,32 +3654,40 @@ abstract class Collections_Archon {
     /**
      * Increments or decrements collection content sort order
      */
-    public function shiftContentSortOrder($CollectionID, $ParentID, $Min, $Max, $Direction, $ExcludeID = NULL, $Amount = 1) {
-        if (!is_natural($CollectionID)) {
+    public function shiftContentSortOrder($CollectionID, $ParentID, $Min, $Max, $Direction, $ExcludeID = NULL, $Amount = 1)
+    {
+        if (!is_natural($CollectionID))
+        {
             $this->declareError("Could not shift sort order for CollectionContent: Collection ID must be numeric.");
             return false;
         }
-        if (!is_natural($ParentID)) {
+        if (!is_natural($ParentID))
+        {
             $this->declareError("Could not shift sort order for CollectionContent: Parent ID must be numeric.");
             return false;
         }
-        if (($Min == NULL && $Max == NULL) || ($Min != NULL && $Max != NULL && $Min > $Max && $Min <= 0 && $Max <= 0) || ($Min != NULL && $Min <= 0) || ($Max != NULL && $Max <= 0)) {
+        if (($Min == NULL && $Max == NULL) || ($Min != NULL && $Max != NULL && $Min > $Max && $Min <= 0 && $Max <= 0) || ($Min != NULL && $Min <= 0) || ($Max != NULL && $Max <= 0))
+        {
             $this->declareError("Could not update sort order for CollectionContent: Incorrect usage of bounds.");
             return false;
         }
-        if ($Direction != UP && $Direction != DOWN) {
+        if ($Direction != UP && $Direction != DOWN)
+        {
             $this->declareError("Could not shift sort order for CollectionContent: Direction not valid.");
             return false;
         }
-        if ($Amount == 0 || !is_natural($Amount)) {
+        if ($Amount == 0 || !is_natural($Amount))
+        {
             $this->declareError("Could not shift sort order for CollectionContent: Shift amount must be numeric.");
             return false;
         }
-        if ($Direction == DOWN && ($Min == NULL || $Amount >= $Min)) {
+        if ($Direction == DOWN && ($Min == NULL || $Amount >= $Min))
+        {
             $this->declareError("Could not shift sort order for CollectionContent: Shift amount exceeds lower bounds.");
             return false;
         }
-        if ($ExcludeID != NULL && !is_natural($ExcludeID)) {
+        if ($ExcludeID != NULL && !is_natural($ExcludeID))
+        {
             $this->declareError("Could not shift sort order for CollectionContent: ID must be numeric.");
             return false;
         }
@@ -3162,19 +3695,27 @@ abstract class Collections_Archon {
         $notid = ($ExcludeID) ? " AND ID !=" . $ExcludeID : "";
 
         $operator = ($Direction == UP) ? "+" : "-";
-        if ($Min && !$Max) {
+        if ($Min && !$Max)
+        {
             $range = "SortOrder >= " . $Min;
-        } elseif (!$Min && $Max) {
+        }
+        elseif (!$Min && $Max)
+        {
             $range = "SortOrder <= " . $Max;
-        } elseif ($Min == $Max) {
+        }
+        elseif ($Min == $Max)
+        {
             $range = "SortOrder = " . $Min;
-        } else {
+        }
+        else
+        {
             $range = "SortOrder >= " . $Min . " AND SortOrder <= " . $Max;
         }
 
         $query = "UPDATE tblCollections_Content SET SortOrder = SortOrder {$operator} {$Amount} WHERE CollectionID = {$CollectionID} AND ParentID = {$ParentID} AND {$range}{$notid}";
         $affected = $this->mdb2->exec($query);
-        if (PEAR::isError($affected)) {
+        if (PEAR::isError($affected))
+        {
             trigger_error($affected->getMessage(), E_USER_ERROR);
         }
 
@@ -3190,26 +3731,35 @@ abstract class Collections_Archon {
      * @param array $arrEntries
      * @return array
      */
-    public function createCartFromArray($arrEntries) {
+    public function createCartFromArray($arrEntries)
+    {
         $DisableStyle = $this->PublicInterface->DisableTheme;
         $this->PublicInterface->DisableTheme = true;
 
         $arrCart->Collections = array();
-        if (!empty($arrEntries)) {
-            foreach ($arrEntries as $objOrarrIDs) {
-                if (is_array($objOrarrIDs)) {
+        if (!empty($arrEntries))
+        {
+            foreach ($arrEntries as $objOrarrIDs)
+            {
+                if (is_array($objOrarrIDs))
+                {
                     $objEntry->CollectionID = $objOrarrIDs['CollectionID'];
                     $objEntry->CollectionContentID = $objOrarrIDs['CollectionContentID'];
-                } else {
+                }
+                else
+                {
                     $objEntry = & $objOrarrIDs;
                 }
 
-                if (!is_natural($objEntry->CollectionID)) {
+                if (!is_natural($objEntry->CollectionID))
+                {
                     continue;
                 }
 
-                if ($objEntry->CollectionContentID) {
-                    if (!is_natural($objEntry->CollectionContentID)) {
+                if ($objEntry->CollectionContentID)
+                {
+                    if (!is_natural($objEntry->CollectionContentID))
+                    {
                         continue;
                     }
 
@@ -3217,44 +3767,56 @@ abstract class Collections_Archon {
                     $objContent->dbLoad();
 
                     $objCollection = $objContent->Collection;
-                } else {
+                }
+                else
+                {
                     $objCollection = New Collection($objEntry->CollectionID);
                     $objCollection->dbLoad();
 
                     unset($objContent);
                 }
 
-                if (CONFIG_COLLECTIONS_SEARCH_BY_CLASSIFICATION && $objCollection->ClassificationID) {
+                if (CONFIG_COLLECTIONS_SEARCH_BY_CLASSIFICATION && $objCollection->ClassificationID)
+                {
                     $objCollection->Classification = New Classification($objCollection->ClassificationID);
                     $objCollection->Classification->dbLoad();
 
                     $String = $objCollection->Classification->toString(LINK_NONE, true, false, true, false);
-                } else {
+                }
+                else
+                {
                     $String = '';
                 }
 
                 $String .= $objCollection->toString();
 
-                if ($objContent) {
+                if ($objContent)
+                {
                     $String .= $objContent->toString(LINK_NONE, true, true, true, true);
                 }
 
-                if ($objOrarrIDs instanceof ResearchAppointmentMaterials) {
+                if ($objOrarrIDs instanceof ResearchAppointmentMaterials)
+                {
                     $objOrarrIDs->Collection = $objCollection;
                     $objOrarrIDs->CollectionContent = $objContent;
 
                     $arrSorter[$String] = $objOrarrIDs;
-                } else {
+                }
+                else
+                {
                     $arrSorter[$String] = $objContent ? $objContent : $objCollection;
                 }
             }
         }
 
-        if (!empty($arrSorter)) {
+        if (!empty($arrSorter))
+        {
             ksort($arrSorter);
 
-            foreach ($arrSorter as $obj) {
-                if ($obj instanceof ResearchAppointmentMaterials) {
+            foreach ($arrSorter as $obj)
+            {
+                if ($obj instanceof ResearchAppointmentMaterials)
+                {
                     $arrCart->Collections[$obj->CollectionID]->Content[$obj->CollectionContentID] = $obj;
 
                     $arrCart->RetrievalTime = isset($arrCart->RetrievalTime) ? (((!$arrCart->RetrievalTime && !$obj->RetrievalTime) || ($arrCart->RetrievalTime && $obj->RetrievalTime)) ? min($arrCart->RetrievalTime, $obj->RetrievalTime) : -1 ) : $obj->RetrievalTime;
@@ -3266,9 +3828,13 @@ abstract class Collections_Archon {
                     $arrCart->Collections[$obj->CollectionID]->RetrievalUserID = isset($arrCart->Collections[$obj->CollectionID]->RetrievalUserID) ? (($arrCart->Collections[$obj->CollectionID]->RetrievalUserID == $obj->RetrievalUserID) ? $arrCart->Collections[$obj->CollectionID]->RetrievalUserID : -1 ) : $obj->RetrievalUserID;
                     $arrCart->Collections[$obj->CollectionID]->ReturnTime = isset($arrCart->Collections[$obj->CollectionID]->ReturnTime) ? (((!$arrCart->Collections[$obj->CollectionID]->ReturnTime && !$obj->ReturnTime) || ($arrCart->Collections[$obj->CollectionID]->ReturnTime && $obj->ReturnTime)) ? min($arrCart->Collections[$obj->CollectionID]->ReturnTime, $obj->ReturnTime) : -1 ) : $obj->ReturnTime;
                     $arrCart->Collections[$obj->CollectionID]->ReturnUserID = isset($arrCart->Collections[$obj->CollectionID]->ReturnUserID) ? (($arrCart->Collections[$obj->CollectionID]->ReturnUserID == $obj->ReturnUserID) ? $arrCart->Collections[$obj->CollectionID]->ReturnUserID : -1 ) : $obj->ReturnUserID;
-                } elseif ($obj instanceof Collection) {
+                }
+                elseif ($obj instanceof Collection)
+                {
                     $arrCart->Collections[$obj->ID]->Content['0'] = $obj;
-                } else {
+                }
+                else
+                {
                     $arrCart->Collections[$obj->CollectionID]->Content[$obj->ID] = $obj;
                 }
             }
@@ -3305,11 +3871,15 @@ abstract class Collections_Archon {
      *
      * @return Appointment[]
      */
-    public function getAllResearchAppointments($PreviousAppointments = true) {
-        if ($PreviousAppointments) {
+    public function getAllResearchAppointments($PreviousAppointments = true)
+    {
+        if ($PreviousAppointments)
+        {
             return $this->loadTable("tblCollections_ResearchAppointments", "ResearchAppointment", "ArrivalTime", "ArrivalTime > " . time()) +
                     $this->loadTable("tblCollections_ResearchAppointments", "Appointment", "ArrivalTime DESC", "ArrivalTime <= " . time());
-        } else {
+        }
+        else
+        {
             return $this->loadTable("tblCollections_ResearchAppointments", "ResearchAppointment", "ArrivalTime", "ArrivalTime > " . time());
         }
     }
@@ -3318,13 +3888,18 @@ abstract class Collections_Archon {
      * Initializes Archon for use
      *
      */
-    public function initialize() {
-        if ($this->Security->isAuthenticated() && !$this->Security->userHasAdministrativeAccess() && $this->Security->Session->getRemoteVariable('Cart')) {
+    public function initialize()
+    {
+        if ($this->Security->isAuthenticated() && !$this->Security->userHasAdministrativeAccess() && $this->Security->Session->getRemoteVariable('Cart'))
+        {
             $arrCartEntries = explode(',', $this->Security->Session->getRemoteVariable('Cart'));
 
-            if (!empty($arrCartEntries)) {
-                foreach ($arrCartEntries as $Entry) {
-                    if ($Entry) {
+            if (!empty($arrCartEntries))
+            {
+                foreach ($arrCartEntries as $Entry)
+                {
+                    if ($Entry)
+                    {
                         list($CollectionID, $CollectionContentID) = explode(':', $Entry);
                         //$this->Security->Session->User->dbAddToCart($CollectionID, $CollectionContentID);
                     }
@@ -3344,8 +3919,10 @@ abstract class Collections_Archon {
      * @param integer $Offset[optional]
      * @return Classification[]
      */
-    public function searchResearchAppointments($SearchQuery, $ArrivalTimeStartLimit = 0, $ArrivalTimeEndLimit = 0, $PreviousAppointments = true, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0) {
-        if (!is_natural($ArrivalTimeStartLimit) || !is_natural($ArrivalTimeEndLimit)) {
+    public function searchResearchAppointments($SearchQuery, $ArrivalTimeStartLimit = 0, $ArrivalTimeEndLimit = 0, $PreviousAppointments = true, $Limit = CONFIG_CORE_SEARCH_RESULTS_LIMIT, $Offset = 0)
+    {
+        if (!is_natural($ArrivalTimeStartLimit) || !is_natural($ArrivalTimeEndLimit))
+        {
             return false;
         }
 
@@ -3353,13 +3930,15 @@ abstract class Collections_Archon {
         $ConditionsANDTypes = array();
         $ConditionsANDVars = array();
 
-        if ($ArrivalTimeStartLimit) {
+        if ($ArrivalTimeStartLimit)
+        {
             $ConditionsAND .= "ArrivalTime >= ?";
             $ConditionsANDTypes[] = 'integer';
             $ConditionsANDVars[] = $ArrivalTimeStartLimit;
         }
 
-        if ($ArrivalTimeEndLimit) {
+        if ($ArrivalTimeEndLimit)
+        {
             $ConditionsAND .= $ConditionsAND ? " AND ArrivalTime <= ?" : "ArrivalTime >= ?";
             $ConditonsANDTypes[] = 'integer';
             $ConditionsANDVars[] = $ArrivalTimeEndLimit;
@@ -3367,7 +3946,8 @@ abstract class Collections_Archon {
 
         $arrFields = $SearchQuery ? array('Topic', 'ResearcherComments', 'ArchivistComments', 'tblCore_Users.FirstName', 'tblCore_Users.LastName', 'tblCore_Users.Email') : NULL;
 
-        if ($PreviousAppointments) {
+        if ($PreviousAppointments)
+        {
             $ConditionsAND1 = $ConditionsAND ? $ConditionsAND . " AND ArrivalTime > ?" : "ArrivalTime > ?";
             $ConditionsAND1Types = array_merge($ConditionsANDTypes, array('integer'));
             $ConditionsAND1Vars = array_merge($ConditionsANDVars, array(time()));
@@ -3378,7 +3958,9 @@ abstract class Collections_Archon {
 
             return $this->searchTable($SearchQuery, array('tblCollections_ResearchAppointments', 'tblCore_Users'), $arrFields, 'ResearchAppointment', 'ArrivalTime', $ConditionsAND1, $ConditionsAND1Types, $ConditionsAND1Vars, NULL, array(), array(), $Limit, $Offset) +
                     $this->searchTable($SearchQuery, array('tblCollections_ResearchAppointments', 'tblCore_Users'), $arrFields, 'ResearchAppointment', 'ArrivalTime DESC', $ConditionsAND2, $ConditionsAND2Types, $ConditionsAND2Vars, NULL, array(), array(), $Limit, $Offset);
-        } else {
+        }
+        else
+        {
             $ConditionsAND .= $ConditionsAND ? " AND ArrivalTime > ?" : "ArrivalTime > ?";
             $ConditionsANDTypes[] = 'integer';
             $ConditionsANDVars[] = time();
